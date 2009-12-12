@@ -1,0 +1,27 @@
+/*
+
+	---   Moosweeper   ---
+	       (Styles)
+	
+	Autor:     Tim Baumann
+	License:         WTFPL
+
+*/
+
+.moosweeper, .moosweeper * { margin: 0; padding: 0; }
+
+.moosweeper { border-collapse: collapse; box-shadow: 0 0 4px #888; -moz-box-shadow: 0 0 4px #888; -webkit-box-shadow: 0 0 4px #888; margin: 0 auto 4px; }
+	.moosweeper caption { color: rgb(75, 100, 125); font-size: 32px; letter-spacing: -0.5px; margin: 16px 0 -9px; text-align: center; }
+	.moosweeper tr {}
+		.moosweeper td { background: rgb(240, 240, 240); border: 1px solid rgb(150, 150, 150); color: rgb(225, 225, 225); }
+			.moosweeper td.suspect { background: rgb(100, 150, 200) !important; -moz-box-shadow: 0 0 10px #888; color: rgb(255, 255, 255) !important; }
+				.moosweeper td.suspect.neighbormines-1 { background: rgb(100, 200, 150) !important; }
+			.moosweeper td.discovered { background: rgb(255, 255, 255); }
+				.moosweeper td.neighbormines-1 { background: rgb(75, 75, 75); box-shadow: 0 0 10px #888; -moz-box-shadow: 0 0 10px #888; -webkit-box-shadow: 0 0 10px #888; color: rgb(255, 255, 255) }
+				.moosweeper td.neighbormines0 { color: rgb(245, 245, 245); }
+				.moosweeper td.neighbormines1 { color: rgb(74, 112, 139); }
+				.moosweeper td.neighbormines2 { color: rgb(60, 179, 113); }
+				.moosweeper td.neighbormines3 { color: rgb(255, 215, 0); }
+				.moosweeper td.neighbormines4 { color: rgb(238, 118, 0); }
+				.moosweeper td.neighbormines5, .neighbormines6, neighbormines7, neighbormines8 { color: rgb(139, 37, 0); }
+			.moosweeper td div { cursor: default; font-family: 'Georgia', serif; font-size: 24px; font-weight: bold; height: 36px; line-height: 36px; text-align: center; width: 36px; }

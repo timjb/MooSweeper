@@ -1,6 +1,6 @@
 /*
 ---
-description: A costumizable Minesweeper clone.
+description: Costumizable Minesweeper clone.
 
 license: WTFPL
 
@@ -80,7 +80,7 @@ var Moosweeper = new Class({
 			if(!this.el.hasClass('discovered')) {
 				this.el.removeClass('suspect');
 				if(this.neighborMines == -1) {
-					window.fireEvent('moosweeperlost');
+					window.fireEvent('moosweeperlose');
 				}
 				else {
 					this.show();
@@ -127,20 +127,16 @@ var Moosweeper = new Class({
 		caption: 'Moosweeper',
 		where: 'bottom',
 		preset: 'medium',
-		successMsg: 'We\'ve got a winner! Wanna play again?',
+		winMsg: 'We\'ve got a winner! Wanna play again?',
 		// 2 events
-		onSuccess: function() {
+		onWin: function() {
 			this.show();
-			if(window.confirm(this.options.successMsg)) {
-				this.newGame();
-			}
+			this.showMsg(this.options.winMsg);
 		},
-		defeatMsg: 'FAILED! Wanna retry?',
-		onDefeat: function() {
+		loseMsg: 'FAILED! Wanna retry?',
+		onLose: function() {
 			this.show();
-			if(window.confirm(this.options.defeatMsg)) {
-				this.newGame();
-			}
+			this.showMsg(this.options.loseMsg);
 		}
 	},
 	noMineFieldsLeft: null,
@@ -219,8 +215,8 @@ var Moosweeper = new Class({
 			'moosweeperfieldcleared': function() {
 				this.fieldCleared();
 			}.bind(this),
-			'moosweeperlost': function() {
-				this.fireEvent('defeat');
+			'moosweeperlose': function() {
+				this.fireEvent('lose');
 			}.bind(this)
 		});
 	},
@@ -265,7 +261,22 @@ var Moosweeper = new Class({
 	fieldCleared: function() {
 		this.noMineFieldsLeft--;
 		if(this.noMineFieldsLeft == 0) {
-			this.fireEvent('success');
+			this.fireEvent('win');
+		}
+	},
+	showMsg: function(msg) {
+		var startNewGame;
+		
+		if(msg[msg.length - 1] == '?') { // last letter is the question mark
+			startNewGame = window.confirm(msg); // ask question, question should be if the user wants to start a new game
+		}
+		else {
+			alert(msg);
+			startNewGame = true;
+		}
+		
+		if(startNewGame) {
+			this.newGame();
 		}
 	}
 });

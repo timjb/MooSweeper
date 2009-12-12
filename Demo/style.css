@@ -1,0 +1,5 @@
+* { margin: 0; padding: 0; }
+body { background: rgb(250, 250, 250); font: 16px 'Helvetica', 'Arial', sans-serif; }
+p.help { color: rgb(100, 100, 100); font-size: 15px; margin: 0 auto; text-align: center; width: 300px; }
+span.key { border: 1px solid rgb(200, 200, 200); padding: 0 2px; }
+a { color: inherit; text-decoration: underline; }

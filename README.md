@@ -3,7 +3,7 @@ MooSweeper
 
 Costumizable Minesweeper clone.
 
-![Screenshot](http://timbaumann.info/MooSweeper/Demo/screenshot.png)
+![Screenshot](http://projects.timbaumann.info/MooSweeper/Demo/screenshot.png)
 
 How to use
 ----------

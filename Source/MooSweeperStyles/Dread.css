@@ -6,7 +6,7 @@
 .moosweeper, .moosweeper * { margin: 0; padding: 0; }
 
 .moosweeper { border-collapse: collapse; font-family: Parole; }
-	.moosweeper caption { color: #888; font-size: 48px; margin: 0 0 -5px; postion: relative; -moz-transform: rotate(-3deg); z-index: -1; }
+	.moosweeper caption { color: #888; font-size: 48px; margin: 0 0 -5px; postion: relative; transform: rotate(-3deg); -moz-transform: rotate(-3deg); -webkit-transform: rotate(-3deg); z-index: -1; }
 	.moosweeper td { background: #333; border: 1px solid #444; color: #444; }
 		.moosweeper td.suspect { background: #888 !important; color: #555 !important; }
 			.moosweeper td.suspect.neighbormines-1 { background: #698B22 !important; }

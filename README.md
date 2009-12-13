@@ -3,7 +3,7 @@ MooSweeper
 
 Costumizable Minesweeper clone.
 
-![Screenshot](http://projects.timbaumann.info/MooSweeper/Demo/screenshot.png)
+![Screenshot](http://projects.timbaumann.info/MooSweeper/Demo/screenshot1.png)
 
 How to use
 ----------
@@ -14,6 +14,14 @@ How to use
 		rows: 10,
 		where: 'bottom' // where the minesweeper is inserted
 	});
+
+Screenshots
+-----------
+
+
+![Screenshot 1](http://projects.timbaumann.info/MooSweeper/Demo/screenshot1.png)
+
+![Screenshot 2](http://projects.timbaumann.info/MooSweeper/Demo/screenshot2.png)
 
 To do
 -----

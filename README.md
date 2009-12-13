@@ -9,7 +9,7 @@ How to use
 ----------
 
 	#JS
-	var mooSweeper = new MooSweeper($$('body')[0], {
+	var mooSweeper = new MooSweeper(document.body, {
 		cols: 10,
 		rows: 10,
 		where: 'bottom' // where the minesweeper is inserted
@@ -18,7 +18,8 @@ How to use
 To do
 -----
 
-* Keyboard navigation
-* Better Styling
-* Canvas support
-* Right click to mark fields
+* Alternative style
+* Code cleanup, performance improvements
+* Game Options (restart button, timer, mines left)
+* Highscore (local with cookies)
+* IE

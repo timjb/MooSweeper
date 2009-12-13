@@ -27,13 +27,18 @@ var Moosweeper = new Class({
 			
 			this.unclear();
 			
-			this.el.addEvent('click', function(event) {
-				if(event.alt || this.el.hasClass('suspect')) {
+			this.el.addEvent('click', function() {
+				if(this.el.hasClass('suspect')) {
 					this.suspect();
 				}
 				else {
 					this.discover();
 				}
+			}.bind(this));
+			// right click to mark mine
+			this.el.addEvent('contextmenu', function(e) {
+				e.stop();
+				this.suspect();
 			}.bind(this));
 		},
 		inject: function(target) {
@@ -55,10 +60,10 @@ var Moosweeper = new Class({
 			this.setText('?');
 		},
 		flag: function() {
-			this.setText('S');
+			this.setText('!');
 		},
 		mine: function() {
-			this.setText('M');
+			this.setText('•');
 		},
 		noMine: function() {
 			this.setText(this.neighborMines.toString());
@@ -94,13 +99,16 @@ var Moosweeper = new Class({
 			}
 		},
 		suspect: function() {
-			// a toggle function
-			if(this.el.hasClass('suspect')) {
-				this.unclear();
-				this.el.removeClass('suspect'); }
-			else {
-				this.flag();
-				this.el.addClass('suspect');
+			if(!this.el.hasClass('discovered')) {
+				// a toggle function
+				if(this.el.hasClass('suspect')) {
+					this.unclear();
+					this.el.removeClass('suspect');
+				}
+				else {
+					this.flag();
+					this.el.addClass('suspect');
+				}
 			}
 		}
 	}),
@@ -124,45 +132,66 @@ var Moosweeper = new Class({
 		}
 	}),
 	options: {
+		/* onWin: $empty,
+		   onLose: $empty, */
 		caption: 'Moosweeper',
 		where: 'bottom',
-		preset: 'medium',
-		winMsg: 'We\'ve got a winner! Wanna play again?',
-		// 2 events
-		onWin: function() {
-			this.show();
-			this.showMsg(this.options.winMsg);
+		css: 'MooSweeperStyles/Clean.css',
+		gameOptions: {
+			where: 'bottom',
+			interface: ''
 		},
-		loseMsg: 'FAILED! Wanna retry?',
-		onLose: function() {
-			this.show();
-			this.showMsg(this.options.loseMsg);
-		}
+		preset: 'medium'
 	},
 	noMineFieldsLeft: null,
 	el: null,
+	cellsContainer: null,
 	target: null,
 	
 	initialize: function(target, options) {
 		this.target = $(target);
 		this.prepareOptions(options);
 		
+		// styles
+		this.setCSS();
+			
+		// make the element
 		this.el = new Element('table', {
 			'class': 'moosweeper',
 			summary: 'Minesweeper field'
 		});
 		
+		// caption
+		if(this.options.caption) {
+			new Element('caption', {
+				text: this.options.caption
+			}).inject(this.el);
+		}
+		
+		// game options
+		if(this.options.gameOptions.interface) {
+			var gameOptionsElType = (this.options.gameOptions.where == 'top') ? 'thead' : 'tfoot';
+			new Element(gameOptionsElType, {
+				text: this.options.gameOptions.interface
+			}).inject(this.el);
+		}
+		
+		// tbody for cells
+		this.cellsContainer = new Element('tbody');
+		this.cellsContainer.inject(this.el);
+		
 		this.newGame();
 		this.addEvents();
+		
 		this.el.inject(this.target, this.options.where);
 	},
-	
 	// handles the presets
 	prepareOptions: function(options) {
 		// is there a preset with the specified name
 		if($defined(options.preset) && $defined(this.presets.get(options.preset))) {
 			this.options.preset = options.preset;
 		} // else this.options.preset remains "medium"
+		
 		var preset = this.presets.get(this.options.preset);
 		$extend(this.options, preset); // copy the preset into the options
 		this.setOptions(options);
@@ -236,19 +265,15 @@ var Moosweeper = new Class({
 		return neighborCells;
 	},
 	displayMoosweeper: function() {
-		this.el.set('html', ''); // necessary for restarts
-		if($chk(this.options.caption)) {
-			new Element('caption', {
-				text: this.options.caption
-			}).inject(this.el);
-		}
+		this.cellsContainer.set('html', ''); // necessary for restarts
 		
+		// cells
 		this.moosweeperCells.each(function(itemy) {
 			var moosweeperRow = new Element('tr');
 			itemy.each(function(itemx) {
 				itemx.inject(moosweeperRow);
 			});
-			moosweeperRow.inject(this.el);
+			moosweeperRow.inject(this.cellsContainer);
 		}.bind(this));
 	},
 	show: function() {
@@ -264,19 +289,35 @@ var Moosweeper = new Class({
 			this.fireEvent('win');
 		}
 	},
-	showMsg: function(msg) {
-		var startNewGame;
-		
-		if(msg[msg.length - 1] == '?') { // last letter is the question mark
-			startNewGame = window.confirm(msg); // ask question, question should be if the user wants to start a new game
+	setCSS: function(css) {
+		if(css) {
+			// remove old
+			var cssEl = document.id('moosweepercss');
+			if(cssEl) {
+				cssEl.dispose();
+			}
+			// set option
+			this.options.css = css;
 		}
-		else {
-			alert(msg);
-			startNewGame = true;
-		}
 		
-		if(startNewGame) {
-			this.newGame();
+		if(this.options.css) {
+			var inlineCSS = !this.options.css.test(/\.css$/i); // if not ends with ".css"
+			if(inlineCSS) {
+				cssEl = new Element('style', {
+					type: 'text/css',
+					id: 'moosweepercss',
+					text: this.options.css
+				});
+			}
+			else {
+				cssEl = new Element('link', {
+					rel: 'stylesheet',
+					type: 'text/css',
+					id: 'moosweepercss',
+					href: this.options.css
+				});
+			}
+			cssEl.inject(document.head);
 		}
 	}
 });

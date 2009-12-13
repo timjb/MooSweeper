@@ -3,26 +3,58 @@
 
 <head>
 <meta charset="utf-8">
-<title>OOP-Minesweeper</title>
+<title>MooSweeper Demo</title>
 <meta name=keywords content="MooTools, Minesweeper, JavaScript, JS, OOP">
-<meta name=description content="Hier kostenos OOP-Minesweeper spielen!">
 <meta name=author content="Tim Baumann">
-<meta name=language content=de>
+<meta name=language content=en>
 <link rel=stylesheet href=style.css>
-<link rel=stylesheet href=../Source/style.css>
 
 <body>
+<div id=container>
 
-<p class=help>Minen können mit <span class="key">Alt</span> + Klick markiert werden. Sie können <a href="js/moosweeper.js">die MooTools-Klasse</a> (Lizenz: <a href="https://secure.wikimedia.org/wikipedia/de/wiki/WTFPL">WTFPL</a>) herunterladen. Styling mittels <a href="style.css">dieser CSS-Datei</a>. Sollte schlussendlich <a href=screenshot.png>so</a> aussehen.
+<div class=about>
+	<p>Costumizable Minesweeper clone for the MooTools JS Framework.
+	<dl>
+		<dt>Author
+		<dd>Tim Baumann
+		<dt>License
+		<dd><a href=http://sam.zoy.org/wtfpl/>WTFPL</a>
+		<dt>Docs &amp; download
+		<dd>At MooTools Forge (not yet)
+		<dt>Code
+		<dd><a href=http://github.com/timjb/MooSweeper>GitHub</a>
+		<dt>Game instructions
+		<dd><a href=http://www.collegehumor.com/video:1770138>Wikipedia</a>
+		<dt>Style
+		<dd>
+			<select id=selectstyle>
+				<option>Clean</option>
+				<option>Dread</option>
+			</select>
+	</dl>
+</div>
 
-<script src=mootools-1.2.4-core-nc.js></script>
-<script src=../Source/MooSweeper.js></script>
+<script src=mootools-1.2.4-core-nc.js></script><!-- MooTools -->
+
+<script src=../Source/MooSweeper.js></script><!-- include the script -->
 <script>
 window.addEvent('domready', function() {
-	var moosweeper = new Moosweeper(document.body, {
-		caption: 'OOP-Minesweeper',
-		preset: 'easy',
-		where: 'top'
+	var cssDir = '../Source/MooSweeperStyles/';
+	
+	// MooSweeper
+	var mooSweeper = new Moosweeper($('container'), {
+		caption: 'MooSweeper', // header
+		css: cssDir + $('selectstyle').value + '.css', // stylesheet
+		preset: 'easy', // or: medium, hard
+		where: 'top', // where to insert
+		onWin: function() {
+			alert('onWin!');
+		}
+	});
+	
+	// Styleswitcher
+	$('selectstyle').addEvent('change', function() {
+		mooSweeper.setCSS(cssDir + this.value + '.css');
 	});
 });
 </script>

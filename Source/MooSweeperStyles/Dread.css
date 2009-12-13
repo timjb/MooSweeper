@@ -1,0 +1,20 @@
+/* Style for MooSweeper */
+
+/* (cc) font from http://www.dataloo.de/parole-font-carepaket-fur-den-politischen-widerstand-537.html */
+@font-face { font-family: 'Parole'; src: url(Parole.otf); }
+
+.moosweeper, .moosweeper * { margin: 0; padding: 0; }
+
+.moosweeper { border-collapse: collapse; font-family: Parole; }
+	.moosweeper caption { color: #888; font-size: 48px; margin: 0 0 -5px; postion: relative; -moz-transform: rotate(-3deg); z-index: -1; }
+	.moosweeper td { background: #333; border: 1px solid #444; color: #444; }
+		.moosweeper td.suspect { background: #888 !important; color: #555 !important; }
+			.moosweeper td.suspect.neighbormines-1 { background: #698B22 !important; }
+		.moosweeper td.discovered { background: rgb(22,12,0); }
+			.moosweeper td.neighbormines-1 { background: rgb(164,22,0); color: #fff; }
+			.moosweeper td.neighbormines0 { color: #222; }
+			.moosweeper td.neighbormines1 { color: #777; }
+			.moosweeper td.neighbormines2 { color: rgb(149,79,12); }
+			.moosweeper td.neighbormines3 { color: rgb(233,115,0); }
+			.moosweeper td.neighbormines4, .moosweeper td.neighbormines5, .neighbormines6, neighbormines7, neighbormines8 { color: rgb(139, 37, 0); }
+		.moosweeper td div { cursor: default; font-size: 24px; font-weight: bold; height: 36px; line-height: 36px; text-align: center; width: 36px; }

@@ -14,106 +14,7 @@ provides: MooSweeper
 var Moosweeper = new Class({
 	Implements: [Options, Events],
 	
-	MoosweeperCell: new Class({
-		el: null,
-		textWrapper: null,
-		neighborCells: null,
-		neighborMines: 0 /* -1 means: this is a mine itself */,
-
-		initialize: function() {
-			this.el = new Element('td');
-			this.textWrapper = new Element('div');
-			this.textWrapper.inject(this.el);
-			
-			this.unclear();
-			
-			this.el.addEvent('click', function() {
-				if(this.el.hasClass('suspect')) {
-					this.suspect();
-				}
-				else {
-					this.discover();
-				}
-			}.bind(this));
-			// right click to mark mine
-			this.el.addEvent('contextmenu', function(e) {
-				e.stop();
-				this.suspect();
-			}.bind(this));
-		},
-		inject: function(target) {
-			this.el.inject(target);
-		},
-		setMine: function() {
-			if(this.neighborMines != -1) {
-				this.neighborMines = -1;
-				return true;
-			}
-			else {
-				return false;
-			}
-		},
-		setText: function(text) {
-			this.textWrapper.set('text', text);
-		},
-		unclear: function() {
-			this.setText('?');
-		},
-		flag: function() {
-			this.setText('!');
-		},
-		mine: function() {
-			this.setText('•');
-		},
-		noMine: function() {
-			this.setText(this.neighborMines.toString());
-		},
-		show: function() {
-			if(!this.el.hasClass('discovered')) {
-				this.el.addClass('discovered');
-				this.el.addClass('neighbormines' + this.neighborMines);
-				if(this.neighborMines == -1) {
-					this.mine();
-				}
-				else {
-					this.noMine();
-				}
-				this.el.removeEvents('click');
-			}
-		},
-		discover: function() {
-			if(!this.el.hasClass('discovered')) {
-				this.el.removeClass('suspect');
-				if(this.neighborMines == -1) {
-					window.fireEvent('moosweeperlose');
-				}
-				else {
-					this.show();
-					window.fireEvent('moosweeperfieldcleared');
-					if(this.neighborMines == 0) {
-						this.neighborCells.each(function(item) {
-							item.discover();
-						});
-					}
-				}
-			}
-		},
-		suspect: function() {
-			if(!this.el.hasClass('discovered')) {
-				// a toggle function
-				if(this.el.hasClass('suspect')) {
-					this.unclear();
-					this.el.removeClass('suspect');
-				}
-				else {
-					this.flag();
-					this.el.addClass('suspect');
-				}
-			}
-		}
-	}),
-	moosweeperCells: [],
-	// the original windows minesweeper presets
+	// the original m$ windows minesweeper presets
 	presets: $H({
 		easy: {
 			cols: 8,
@@ -132,58 +33,52 @@ var Moosweeper = new Class({
 		}
 	}),
 	options: {
-		/* onWin: $empty,
-		   onLose: $empty, */
+		onWin: $empty,
+		onLose: function(reason) {
+			this.showMines();
+			var msg = 'You lose';
+			if(reason == 'time') {
+				msg += '. Time\'s up.';
+			}
+			alert(msg);
+			this.newGame();
+		},
+		
+		// model
+		preset: 'medium',
+		/* => rows: 16,
+		      cols: 16,
+		      minesContingent: 0.16, */
+		
+		// view
 		caption: 'Moosweeper',
 		where: 'bottom',
 		css: 'MooSweeperStyles/Clean.css',
-		gameOptions: {
-			where: 'bottom',
-			interface: ''
+		symbols: {
+			covered: '?',
+			marked:  '!',
+			mine:    '•'
 		},
-		preset: 'medium'
+		/*gameOptions: {
+			where: 'bottom',
+			interface: '%status%, %newgame%, %countdown%'
+		}*/
 	},
-	noMineFieldsLeft: null,
-	el: null,
-	cellsContainer: null,
-	target: null,
 	
 	initialize: function(target, options) {
-		this.target = $(target);
 		this.prepareOptions(options);
 		
-		// styles
-		this.setCSS();
-			
-		// make the element
-		this.el = new Element('table', {
-			'class': 'moosweeper',
-			summary: 'Minesweeper field'
-		});
+		// references to the whole class
+		[this.model, this.view].each(function(item) {
+			item.that = this;
+		}, this);
 		
-		// caption
-		if(this.options.caption) {
-			new Element('caption', {
-				text: this.options.caption
-			}).inject(this.el);
-		}
-		
-		// game options
-		if(this.options.gameOptions.interface) {
-			var gameOptionsElType = (this.options.gameOptions.where == 'top') ? 'thead' : 'tfoot';
-			new Element(gameOptionsElType, {
-				text: this.options.gameOptions.interface
-			}).inject(this.el);
-		}
-		
-		// tbody for cells
-		this.cellsContainer = new Element('tbody');
-		this.cellsContainer.inject(this.el);
-		
-		this.newGame();
-		this.addEvents();
-		
-		this.el.inject(this.target, this.options.where);
+		this.model.initialize();
+		this.view.initialize(target);
+	},
+	newGame: function() {
+		this.model.newGame();
+		this.view.newGame();
 	},
 	// handles the presets
 	prepareOptions: function(options) {
@@ -191,133 +86,346 @@ var Moosweeper = new Class({
 		if($defined(options.preset) && $defined(this.presets.get(options.preset))) {
 			this.options.preset = options.preset;
 		} // else this.options.preset remains "medium"
-		
+
 		var preset = this.presets.get(this.options.preset);
-		$extend(this.options, preset); // copy the preset into the options
+		$extend(this.options, preset); // load the preset
+		
 		this.setOptions(options);
 	},
-	newGame: function(options) {
-		if($defined(options)) {
-			this.prepareOptions(options);
-		}
-		
-		// Create the cells
-		this.moosweeperCells.empty();
-		this.options.rows.times(function() {
-			var row = [];
-			this.options.cols.times(function() {
-				var cell = new this.MoosweeperCell();
-				row.push(cell);
-			}.bind(this));
-			this.moosweeperCells.push(row);
-		}.bind(this));
-		
-		// set neighborCells
-		this.moosweeperCells.each(function(itemy, indexy) {
-			itemy.each(function(itemx, indexx) {
-				itemx.neighborCells = this.getNeighborCells(indexx, indexy);
-			}.bind(this));
-		}.bind(this))
-		
-		var cellsNumber = this.options.rows * this.options.cols;
-		var minesNumber = (cellsNumber * this.options.minesContingent).round();
-		this.noMineFieldsLeft = cellsNumber - minesNumber;
-		
-		// distribute mines over the field
-		var i = 0;
-		while(i < minesNumber) {
-			var randomCell = this.moosweeperCells.getRandom().getRandom();
-			if(randomCell.setMine()) {
-				randomCell.neighborCells.each(function(item) {
-					if(item.neighborMines != -1) {
-						item.neighborMines++;
-					}
-				});
-				i++;
-			}
-		}
-		
-		this.displayMoosweeper();
-	},
-	addEvents: function() {
-		window.addEvents({
-			'moosweeperfieldcleared': function() {
-				this.fieldCleared();
-			}.bind(this),
-			'moosweeperlose': function() {
-				this.fireEvent('lose');
-			}.bind(this)
-		});
-	},
-	getNeighborCells: function(x, y) {
-		var neighborCells = [];
-		var dx = [x - 1, x, x + 1];
-		var dy = [y - 1, y, y + 1];
-		
-		dx.each(function(itemx) {
-			dy.each(function(itemy) {
-				if(!(itemx == x && itemy == y) && $defined(this.moosweeperCells[itemy]) && $defined(this.moosweeperCells[itemy][itemx])) { // we don't want the cell, only the cells around it
-					neighborCells.push(this.moosweeperCells[itemy][itemx]);
-				}
-			}.bind(this));
-		}.bind(this));
-		
-		return neighborCells;
-	},
-	displayMoosweeper: function() {
-		this.cellsContainer.set('html', ''); // necessary for restarts
-		
-		// cells
-		this.moosweeperCells.each(function(itemy) {
-			var moosweeperRow = new Element('tr');
-			itemy.each(function(itemx) {
-				itemx.inject(moosweeperRow);
-			});
-			moosweeperRow.inject(this.cellsContainer);
-		}.bind(this));
-	},
-	show: function() {
-		this.moosweeperCells.each(function(itemy) {
-			itemy.each(function(itemx) {
-				itemx.show();
-			});
-		});
-	},
-	fieldCleared: function() {
-		this.noMineFieldsLeft--;
-		if(this.noMineFieldsLeft == 0) {
-			this.fireEvent('win');
-		}
-	},
+	// API
 	setCSS: function(css) {
-		if(css) {
-			// remove old
-			var cssEl = document.id('moosweepercss');
-			if(cssEl) {
-				cssEl.dispose();
-			}
-			// set option
-			this.options.css = css;
-		}
+		this.view.setCSS(css);
+	},
+	showAll: function() {
+		this.view.showAll();
+	},
+	showMines: function() {
+		this.view.showMines();
+	},
+	
+	model: {
+		field: [],
+		mineCells: [], // positions of the mines
+		gameOptions: $H({}),
 		
-		if(this.options.css) {
-			var inlineCSS = !this.options.css.test(/\.css$/i); // if not ends with ".css"
-			if(inlineCSS) {
-				cssEl = new Element('style', {
-					type: 'text/css',
-					id: 'moosweepercss',
-					text: this.options.css
-				});
+		cells: null,
+		mines: null,
+		cellsLeft: null, // if you have a 5x5 field with 6 mines, you have to discover 19 cells. Counts down.
+		
+		lost: false,
+		
+		initialize: function() {
+			this.calculateCells();
+			this.createField();
+			this.distributeMines();
+		},
+		newGame: function() {
+			this.lost = false;
+			this.initialize();
+		},
+		calculateCells: function() {
+			this.cells = this.that.options.cols * this.that.options.rows;
+			this.mines = (this.cells * this.that.options.minesContingent).round();
+			this.cellsLeft = this.cells - this.mines;
+		},
+		createField: function() {
+			this.field = [];
+			this.that.options.cols.times(function(x) {
+				this.field[x] = [];
+				this.that.options.rows.times(function() {
+					this.field[x].push(0);
+				}, this);
+			}, this);
+		},
+		distributeMines: function() {
+			this.mineCells = [];
+			var i = 0;
+			while(i < this.mines) {
+				var x = $random(0, this.that.options.cols - 1);
+				var y = $random(0, this.that.options.rows - 1);
+				
+				// if not already a mine
+				if(this.field[x][y] >= 0) {
+					this.field[x][y] = -1;
+					this.mineCells.push([x, y]);
+					
+					// increase the mines count of the neighbor cells
+					this.getNeighbors(x, y).each(function(item) {
+						if(this.field[item[0]][item[1]] >= 0) { // not a mine
+							this.field[item[0]][item[1]] += 1;
+						}
+					}, this);
+					
+					i++;
+				}
 			}
-			else {
-				cssEl = new Element('link', {
-					rel: 'stylesheet',
-					type: 'text/css',
-					id: 'moosweepercss',
-					href: this.options.css
-				});
+		},
+		get: function(x, y) {
+			if($defined(this.field[x][y])) {
+				var minesCount = this.field[x][y];
+				if(!this.lost) {
+					// fire events
+					if(minesCount == -1) {
+						this.lost = true;
+						this.that.fireEvent('lose', 'mine');
+					} else {
+						this.cellsLeft--;
+						if(this.cellsLeft <= 0) {
+							this.that.fireEvent('win');
+						}
+					}
+				}
+				return minesCount;
 			}
-			cssEl.inject(document.head);
+		},
+		getNeighbors: function(x, y) {
+			// increase the mines count of the neighbor cells	
+			var neighbors = [];
+			var dx = [x - 1, x, x + 1];
+			var dy = [y - 1, y, y + 1];
+			
+			dx.each(function(nx) {
+				if($defined(this.field[nx])) {
+					dy.each(function(ny) {
+						if(!(nx == x && ny == y) && $defined(this.field[nx][ny])) { // we don't want the cell, only the cells around it
+							neighbors.push([nx, ny]);
+						}
+					}, this);
+				}
+			}, this);
+			
+			return neighbors;
+		},
+	},
+	
+	view: {
+		// elements
+		table: null,
+		tbody: null,
+		target: null, // where to insert the table
+		divs: [],
+		//gameOptionsEl: null, // table > tfoot|thead
+		
+		initialize: function(target) {
+			this.target = document.id(target);
+			
+			this.setCSS();
+			this.createField();
+			//this.makeGameOptions();
+			
+			this.table.inject(this.target, this.that.options.where);
+		},
+		newGame: function() {
+			this.divs.each(function(item) {
+				item.each(function(item) {
+					item.set({
+						'class': 'covered',
+						text: this.that.options.symbols.covered
+					});
+				}, this);
+			}, this);
+		},
+		setCSS: function(css) {
+			if(css) {
+				this.that.options.css = css;
+			}
+			
+			if(this.that.options.css) {
+				var isInline = !this.that.options.css.test(/\.css$/i); // if not ends with ".css"
+				if(isInline) {
+					// inline styles
+					cssEl = new Element('style', {
+						type: 'text/css',
+						text: this.that.options.css
+					});
+				} else {
+					// external stylesheet
+					cssEl = new Element('link', {
+						rel: 'stylesheet',
+						type: 'text/css',
+						href: this.that.options.css
+					});
+				}
+				if(this.cssEl) {
+					cssEl.replaces(this.cssEl); // replace old CSS element
+				} else {
+					cssEl.inject(document.head);
+				}
+				this.cssEl = cssEl;
+			}
+		},
+		createField: function() {
+			// table
+			this.table = new Element('table', {
+				'class': 'moosweeper',
+				summary: 'Minesweeper field',
+				events: {
+					click: function(event) {
+						var target = $(event.target);
+						if(target.get('tag') == 'div') this.show(target);
+					}.bind(this),
+					contextmenu: function(event) {
+						var target = $(event.target);
+						if(target.get('tag') == 'div') this.mark(target);
+						return false;
+					}.bind(this)
+				}
+			});
+			
+			// tbody
+			this.tbody = new Element('tbody');
+			this.tbody.inject(this.table);
+			
+			// create cells
+			this.that.options.rows.times(function(y) {
+				var tr = new Element('tr');
+				this.divs[y] = [];
+				this.that.options.cols.times(function(x) {
+					var td = new Element('td');
+					var div = new Element('div', {
+						'class': 'covered',
+						text: this.that.options.symbols.covered
+					});
+					div.store('x', x);
+					div.store('y', y);
+					this.divs[y][x] = div;
+					div.inject(td);
+					td.inject(tr);
+				}, this);
+				tr.inject(this.tbody);
+			}, this);
+			
+			// caption
+			if(this.that.options.caption) {
+				new Element('caption', {
+					text: this.that.options.caption
+				}).inject(this.table);
+			}
+		},
+		mark: function(div) {
+			if(div.hasClass('covered')) {
+				// toggle function
+				if(div.hasClass('marked')) {
+					div.removeClass('marked');
+					div.set('text', this.that.options.symbols.covered);
+				} else {
+					div.addClass('marked');
+					div.set('text', this.that.options.symbols.marked);
+				}
+			}
+		},
+		show: function(div, options) {
+			if(!options) options = {};
+			// options can be: force, removeMark and noAvalanche
+			
+			// if force is true, decover the cell even if it's marked
+			if(div.hasClass('covered') && (options.force || !div.hasClass('marked'))) {
+				if(options.removeMark) {
+					div.removeClass('marked');
+				}
+				
+				var x = div.retrieve('x');
+				var y = div.retrieve('y');
+				
+				var minesCount = this.that.model.get(x, y);
+				if(minesCount == -1) {
+					if(options.force) {
+						div.set('text', this.that.options.symbols.mine);
+						div.addClass('mine');
+						div.removeClass('covered').addClass('discovered');
+					}
+				} else {
+					div.set('text', minesCount);
+					div.addClass('minescount'+minesCount);
+					div.removeClass('covered').addClass('discovered');
+					
+					if(!options.noAvalanche && minesCount === 0) { // there's no mine around, so we can discover all neighbor cells
+						this.that.model.getNeighbors(x, y).each(function(item) {
+							var neighborDiv = this.getDiv(item[0], item[1]);
+							if(neighborDiv.hasClass('covered')) {
+								this.show(neighborDiv, {
+									force: true,
+									removeMark: true
+								});
+							}
+						}, this);
+					}
+				}
+			}
+		},
+		showAll: function() {
+			this.divs.each(function(item) {
+				item.each(function(item) {
+					if(item.hasClass('covered')) {
+						this.show(item, {
+							force: true,
+							noAvalanche: true
+						})
+					};
+				}, this);
+			}, this);
+		},
+		showMines: function() {
+			this.that.model.mineCells.each(function(item) {
+				var div = this.getDiv(item[0], item[1]);
+				if(div.hasClass('covered')) {
+					this.show(div, {
+						force: true
+					});
+				}
+			}, this);
+		},
+		getDiv: function(x, y) {
+			return this.divs[y][x];
 		}
+		/*,
+		makeGameOptions: function() {
+			// game options
+			if(this.options.gameOptions.interface) {
+				// process interface string
+				var interfaceHTML = this.options.gameOptions.interface;
+				['status', 'countdown', 'newgame'].each(function(item) {
+					interfaceHTML = interfaceHTML.replace('%'+item+'%', '<span class="gameoption '+item+'"></span>');
+				});
+				
+				var gameOptionsElType = (this.options.gameOptions.where == 'top') ? 'thead' : 'tfoot';
+				
+				// tfoot|thead.gameoptions > tr > th[colspan]
+				this.gameOptionsEl = new Element(gameOptionsElType, {
+					'class': 'gameoptions'
+				}).grab(new Element('tr').grab(new Element('th', {
+					colspan: this.options.cols,
+					html: interfaceHTML
+				})));
+				
+				// add gameOptionEls to index
+				this.gameOptionsEl.getElements('.gameoption').each(function(item) {
+					var gameOptionName = item.get('class').split(' ')[1]; // the second class of the el
+					if(!this.gameOptions.has(gameOptionName)) {
+						this.gameOptions.set(gameOptionName, []);
+					}
+					this.gameOptions.set(gameOptionName, this.gameOptions.get(gameOptionName).push(item));
+				}, this);
+				
+				this.gameOptionsEl.inject(this.view.table);
+			}
+		},
+		setGameOption: function(option, value) {
+			if(this.gameOptionsEls.option) {
+				this.gameOptionsEls.get(option).each(function() {
+					this.set('text', value);
+				});
+			}
+		},
+		showAll: function() {
+			this.eachField(function(item) {
+				item.show();
+			});
+		},
+		showMines: function() {
+			this.mines.each(function(item) {
+				item.show();
+			});
+		}*/
 	}
 });

@@ -226,6 +226,9 @@ var Moosweeper = new Class({
 			this.table.inject(this.target, this.that.options.where);
 		},
 		newGame: function() {
+			this.table.set('class', 'moosweeper');
+			
+			// cells
 			this.divs.each(function(item) {
 				item.each(function(item) {
 					item.set({

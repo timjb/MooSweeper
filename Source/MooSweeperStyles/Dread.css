@@ -11,7 +11,8 @@
 		.moosweeper .marked { background: #888 !important; color: #555 !important; }
 			.moosweeper .marked.mine { background: #698B22 !important; }
 		.moosweeper .discovered { background: rgb(22,12,0); }
-			.moosweeper .mine { background: rgb(164,22,0); color: #fff; }
+			.moosweeper .mine { background: #5c6d09; color: #fff; }
+				.moosweeper.lose .mine { background: rgb(164,22,0); }
 			.moosweeper .minescount0 { color: #222; }
 			.moosweeper .minescount1 { color: #777; }
 			.moosweeper .minescount2 { color: rgb(149,79,12); }

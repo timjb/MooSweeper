@@ -33,8 +33,15 @@ var Moosweeper = new Class({
 		}
 	}),
 	options: {
-		onWin: $empty,
+		// events
+		onWin: function() {
+			this.view.table.addClass('win');
+			this.showAll();
+			alert('You win!');
+			this.newGame();
+		},
 		onLose: function(reason) {
+			this.view.table.addClass('lose');
 			this.showMines();
 			var msg = 'You lose';
 			if(reason == 'time') {
@@ -112,7 +119,7 @@ var Moosweeper = new Class({
 		mines: null,
 		cellsLeft: null, // if you have a 5x5 field with 6 mines, you have to discover 19 cells. Counts down.
 		
-		lost: false,
+		finished: false,
 		
 		initialize: function() {
 			this.calculateCells();
@@ -120,7 +127,7 @@ var Moosweeper = new Class({
 			this.distributeMines();
 		},
 		newGame: function() {
-			this.lost = false;
+			this.finished = false;
 			this.initialize();
 		},
 		calculateCells: function() {
@@ -163,15 +170,18 @@ var Moosweeper = new Class({
 		get: function(x, y) {
 			if($defined(this.field[x][y])) {
 				var minesCount = this.field[x][y];
-				if(!this.lost) {
+				if(!this.finished) {
 					// fire events
 					if(minesCount == -1) {
-						this.lost = true;
+						this.finished = true;
 						this.that.fireEvent('lose', 'mine');
+						return -2;
 					} else {
 						this.cellsLeft--;
 						if(this.cellsLeft <= 0) {
+							this.finished = true;
 							this.that.fireEvent('win');
+							return -2;
 						}
 					}
 				}
@@ -328,27 +338,27 @@ var Moosweeper = new Class({
 				var y = div.retrieve('y');
 				
 				var minesCount = this.that.model.get(x, y);
-				if(minesCount == -1) {
-					if(options.force) {
+				
+				if(minesCount != -2) { // -2 means: game is finished => event was fired, in the event a new game can be started => don't show the cell
+					div.removeClass('covered').addClass('discovered');
+					if(minesCount == -1) {
 						div.set('text', this.that.options.symbols.mine);
 						div.addClass('mine');
-						div.removeClass('covered').addClass('discovered');
-					}
-				} else {
-					div.set('text', minesCount);
-					div.addClass('minescount'+minesCount);
-					div.removeClass('covered').addClass('discovered');
-					
-					if(!options.noAvalanche && minesCount === 0) { // there's no mine around, so we can discover all neighbor cells
-						this.that.model.getNeighbors(x, y).each(function(item) {
-							var neighborDiv = this.getDiv(item[0], item[1]);
-							if(neighborDiv.hasClass('covered')) {
-								this.show(neighborDiv, {
-									force: true,
-									removeMark: true
-								});
-							}
-						}, this);
+					} else {
+						div.set('text', minesCount);
+						div.addClass('minescount'+minesCount);
+						
+						if(!options.noAvalanche && minesCount === 0) { // there's no mine around, so we can discover all neighbor cells
+							this.that.model.getNeighbors(x, y).each(function(item) {
+								var neighborDiv = this.getDiv(item[0], item[1]);
+								if(neighborDiv.hasClass('covered')) {
+									this.show(neighborDiv, {
+										force: true,
+										removeMark: true
+									});
+								}
+							}, this);
+						}
 					}
 				}
 			}

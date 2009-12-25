@@ -9,7 +9,8 @@
 			.moosweeper .marked.mine { background: rgb(100, 200, 150) !important; }
 		.moosweeper .discovered { background: rgb(255, 255, 255); }
 			.moosweeper .mine { background: rgb(75, 75, 75); box-shadow: 0 0 5px #999; -moz-box-shadow: 0 0 5px #999; -webkit-box-shadow: 0 0 5px #999; color: rgb(255, 255, 255) }
-			.moosweeper .minescount0 { color: rgb(245, 245, 245); }
+				.moosweeper.lose .mine { background: #800; }
+			.moosweeper .minescount0 { color: rgb(240, 240, 240); }
 			.moosweeper .minescount1 { color: rgb(74, 112, 139); }
 			.moosweeper .minescount2 { color: rgb(60, 179, 113); }
 			.moosweeper .minescount3 { color: rgb(255, 215, 0); }

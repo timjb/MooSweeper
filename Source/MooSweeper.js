@@ -273,7 +273,7 @@ var Moosweeper = new Class({
 				'class': 'moosweeper',
 				summary: 'Minesweeper field',
 				events: {
-					click: function(event) {
+					mouseup: function(event) {
 						var target = $(event.target);
 						if(target.get('tag') == 'div') this.show(target);
 					}.bind(this),
@@ -281,7 +281,14 @@ var Moosweeper = new Class({
 						var target = $(event.target);
 						if(target.get('tag') == 'div') this.mark(target);
 						return false;
-					}.bind(this)
+					}.bind(this),
+					// disableSelection
+					mousedown: function() { // Mozilla
+						return false;
+					},
+					selectstart: function() { // IE
+						return false;
+					}
 				}
 			});
 			

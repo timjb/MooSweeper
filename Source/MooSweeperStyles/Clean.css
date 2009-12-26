@@ -3,17 +3,18 @@
 .moosweeper, .moosweeper * { margin: 0; padding: 0; }
 
 .moosweeper { border-collapse: collapse; box-shadow: 0 0 5px #999; -moz-box-shadow: 0 0 5px #999; -webkit-box-shadow: 0 0 5px #999; }
-	.moosweeper caption { color: rgb(75, 100, 125); font-size: 32px; letter-spacing: -0.5px; margin: 21px 0 -7px; text-align: center; }
-	.moosweeper td { background: rgb(240, 240, 240); border: 1px solid rgb(150, 150, 150); color: #fff; }
-		.moosweeper .marked { background: rgb(100, 150, 200) !important; -moz-box-shadow: 0 0 10px #888; color: rgb(255, 255, 255) !important; }
-			.moosweeper .marked.mine { background: rgb(100, 200, 150) !important; }
-		.moosweeper .discovered { background: rgb(255, 255, 255); }
-			.moosweeper .mine { background: rgb(75, 75, 75); box-shadow: 0 0 5px #999; -moz-box-shadow: 0 0 5px #999; -webkit-box-shadow: 0 0 5px #999; color: rgb(255, 255, 255) }
+	.moosweeper caption { color: #4b647d; font-size: 32px; letter-spacing: -0.5px; margin: 21px 0 -7px; text-align: center; }
+	.moosweeper td { background: #f0f0f0; border: 1px solid #969696; color: #fff; }
+		.moosweeper .marked { background: #6496c8 !important; -moz-box-shadow: 0 0 10px #888; color: #fff !important; }
+			.moosweeper .marked.mine { background: #64c896 !important; }
+		.moosweeper .discovered { background: #fff; }
+			.moosweeper .mine { background: #4b4b4b; box-shadow: 0 0 5px #999; -moz-box-shadow: 0 0 5px #999; -webkit-box-shadow: 0 0 5px #999; color: #fff; }
 				.moosweeper.lose .mine { background: #800; }
-			.moosweeper .minescount0 { color: rgb(240, 240, 240); }
-			.moosweeper .minescount1 { color: rgb(74, 112, 139); }
-			.moosweeper .minescount2 { color: rgb(60, 179, 113); }
-			.moosweeper .minescount3 { color: rgb(255, 215, 0); }
-			.moosweeper .minescount4 { color: rgb(238, 118, 0); }
-			.moosweeper .minescount5, .minescount6, .minescount7, .minescount8 { color: rgb(139, 37, 0); }
+			.moosweeper .minescount0 { color: #f0f0f0 !important; }
+			.moosweeper .minescount1 { color: #4a708b !important; }
+			.moosweeper .minescount2 { color: #3cb371 !important; }
+			.moosweeper .minescount3 { color: #ffd700 !important; }
+			.moosweeper .minescount4 { color: #ee7600 !important; }
+			.moosweeper .minescount5, .minescount6, .minescount7, .minescount8 { color: #8b2500; }
 		.moosweeper td div { cursor: default; font-family: 'Georgia', serif; font-size: 24px; font-weight: bold; height: 36px; line-height: 36px; text-align: center; width: 36px; }
+			.moosweeper td:hover div { background: #fff; color: #eee; }

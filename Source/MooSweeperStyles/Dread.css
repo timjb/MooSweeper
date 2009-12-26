@@ -19,3 +19,4 @@
 			.moosweeper .minescount3 { color: rgb(233,115,0); }
 			.moosweeper .minescount4, .moosweeper td.minesCount5, .minesCount6, .minesCount7, .minesCount8 { color: rgb(139, 37, 0); }
 		.moosweeper td div { cursor: default; font-size: 24px; font-weight: bold; height: 36px; line-height: 36px; text-align: center; width: 36px; }
+			.moosweeper td:hover div { background: #222; }

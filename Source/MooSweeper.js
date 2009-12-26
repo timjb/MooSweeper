@@ -275,11 +275,13 @@ var Moosweeper = new Class({
 				events: {
 					mouseup: function(event) {
 						var target = $(event.target);
-						if(target.get('tag') == 'div') this.show(target);
+						if(event.rightClick) {
+							if(target.get('tag') == 'div') this.mark(target);
+						} else {
+							if(target.get('tag') == 'div') this.show(target);
+						}
 					}.bind(this),
 					contextmenu: function(event) {
-						var target = $(event.target);
-						if(target.get('tag') == 'div') this.mark(target);
 						return false;
 					}.bind(this),
 					// disableSelection

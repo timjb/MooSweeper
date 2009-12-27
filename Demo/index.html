@@ -7,6 +7,7 @@
 <meta name=keywords content="MooTools, Minesweeper, JavaScript, JS, OOP">
 <meta name=author content="Tim Baumann">
 <meta name=language content=en>
+<link rel="shortcut icon" href=favicon.ico>
 <link rel=stylesheet href=style.css>
 
 <body>
@@ -19,8 +20,8 @@
 		<dd>Tim Baumann
 		<dt>License
 		<dd><a href=http://sam.zoy.org/wtfpl/>WTFPL</a>
-		<dd>Current version
-		<dt>0.5
+		<dt>Current version
+		<dd>0.5
 		<dt>MooTools Forge
 		<dd>not yet
 		<dt>GitHub
@@ -41,19 +42,17 @@
 <script src=../Source/MooSweeper.js></script><!-- include the script -->
 <script>
 window.addEvent('domready', function() {
-	var cssDir = '../Source/MooSweeperStyles/';
-	
 	// MooSweeper
 	var mooSweeper = new Moosweeper($('container'), {
 		caption: 'MooSweeper', // header
-		css: cssDir + $('selectstyle').value + '.css', // stylesheet
+		css: $('selectstyle').value, // stylesheet
 		preset: 'easy', // or: medium, hard
-		where: 'top' // where to insert
+		where: 'top' // where to inject
 	});
 	
 	// Styleswitcher
 	$('selectstyle').addEvent('change', function() {
-		mooSweeper.setCSS(cssDir + this.value + '.css');
+		mooSweeper.setCSS(this.value);
 	});
 });
 </script>

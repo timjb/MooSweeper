@@ -1,5 +1,7 @@
 /* Style for MooSweeper */
 
+/* icons from silk */
+
 .moosweeper, .moosweeper * { margin: 0; padding: 0; }
 
 .moosweeper { border-collapse: collapse; box-shadow: 0 0 5px #999; -moz-box-shadow: 0 0 5px #999; -webkit-box-shadow: 0 0 5px #999; }
@@ -8,8 +10,8 @@
 		.moosweeper .marked { background: #6496c8 !important; -moz-box-shadow: 0 0 10px #888; color: #fff !important; }
 			.moosweeper .marked.mine { background: #64c896 !important; }
 		.moosweeper .discovered { background: #fff; }
-			.moosweeper .mine { background: #4b4b4b; box-shadow: 0 0 5px #999; -moz-box-shadow: 0 0 5px #999; -webkit-box-shadow: 0 0 5px #999; color: #fff; }
-				.moosweeper.lose .mine { background: #800; }
+			.moosweeper .mine { background: #4b4b4b !important; box-shadow: 0 0 5px #999; -moz-box-shadow: 0 0 5px #999; -webkit-box-shadow: 0 0 5px #999; color: #fff !important; }
+				.moosweeper.lose .mine { background: #800 !important; }
 			.moosweeper .minescount0 { color: #f0f0f0 !important; }
 			.moosweeper .minescount1 { color: #4a708b !important; }
 			.moosweeper .minescount2 { color: #3cb371 !important; }
@@ -18,3 +20,9 @@
 			.moosweeper .minescount5, .minescount6, .minescount7, .minescount8 { color: #8b2500; }
 		.moosweeper td div { cursor: default; font-family: 'Georgia', serif; font-size: 24px; font-weight: bold; height: 36px; line-height: 36px; text-align: center; width: 36px; }
 			.moosweeper td:hover div { background: #fff; color: #eee; }
+	.moosweeper .gameoptions th { background: #f8f8f8; color: #555; font-weight: normal; line-height: 20px; padding: 5px 10px; text-align: left; }
+		.moosweeper .gameoptions .icon { display: inline-block; height: 16px; vertical-align: middle; width: 16px; }
+			.moosweeper .gameoptions .icon.running { background-image: url(smile.png); }
+			.moosweeper .gameoptions .icon.unsure { background-image: url(surprised.png); }
+			.moosweeper .gameoptions .icon.lose { background-image: url(unhappy.png); }
+			.moosweeper .gameoptions .icon.win { background-image: url(grin.png); }

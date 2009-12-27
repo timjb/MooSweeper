@@ -11,6 +11,33 @@ provides: MooSweeper
 ...
 */
 
+// get dir of this included js file (like http://css.dzone.com/news/query-string-aware-javascript)
+Element.implement('getLastRecursive', function() {
+	var lastChild = this.getLast();
+	if(lastChild == null) {
+		return this;
+	} else {
+		return lastChild.getLastRecursive();
+	}
+});
+
+var scriptEl = $(document.documentElement).getLastRecursive();
+
+if(scriptEl.get('id') == '_firebugConsole') {
+	scriptEl = scriptEl.getPrevious().getLastRecursive();
+}
+
+if(scriptEl.get('tag') == 'script') {
+	var jsDir = scriptEl.get('src').split('/');
+	jsDir.pop();
+	jsDir = jsDir.join('/');
+	if(jsDir != '') {
+		jsDir += '/';
+	}
+} else {
+	var jsDir = 'MooSweeper/';
+}
+
 var Moosweeper = new Class({
 	Implements: [Options, Events],
 	
@@ -35,20 +62,10 @@ var Moosweeper = new Class({
 	options: {
 		// events
 		onWin: function() {
-			this.view.table.addClass('win');
 			this.showAll();
-			alert('You win!');
-			this.newGame();
 		},
 		onLose: function(reason) {
-			this.view.table.addClass('lose');
 			this.showMines();
-			var msg = 'You lose';
-			if(reason == 'time') {
-				msg += '. Time\'s up.';
-			}
-			alert(msg);
-			this.newGame();
 		},
 		
 		// model
@@ -66,10 +83,10 @@ var Moosweeper = new Class({
 			marked:  '!',
 			mine:    '•'
 		},
-		/*gameOptions: {
-			where: 'bottom',
-			interface: '%status%, %newgame%, %countdown%'
-		}*/
+		gameOptions: {
+			where: 'top',
+			interface: '%status%, %newgame%, %smiley%, %minesleft%'
+		}
 	},
 	
 	initialize: function(target, options) {
@@ -82,10 +99,14 @@ var Moosweeper = new Class({
 		
 		this.model.initialize();
 		this.view.initialize(target);
+		
+		this.fireEvent('newgame');
 	},
 	newGame: function() {
 		this.model.newGame();
 		this.view.newGame();
+		
+		this.fireEvent('newgame');
 	},
 	// handles the presets
 	prepareOptions: function(options) {
@@ -113,7 +134,7 @@ var Moosweeper = new Class({
 	model: {
 		field: [],
 		mineCells: [], // positions of the mines
-		gameOptions: $H({}),
+		gameOptions: $H(),
 		
 		cells: null,
 		mines: null,
@@ -178,6 +199,7 @@ var Moosweeper = new Class({
 						return -2;
 					} else {
 						this.cellsLeft--;
+						this.that.fireEvent('celldiscovered');
 						if(this.cellsLeft <= 0) {
 							this.finished = true;
 							this.that.fireEvent('win');
@@ -214,19 +236,23 @@ var Moosweeper = new Class({
 		tbody: null,
 		target: null, // where to insert the table
 		divs: [],
-		//gameOptionsEl: null, // table > tfoot|thead
+		gameOptionsEl: null, // table > tfoot|thead
+		gameOptionsEls: $H(),
+		marked: 0, // how many mines are marked
 		
 		initialize: function(target) {
 			this.target = document.id(target);
 			
 			this.setCSS();
 			this.createField();
-			//this.makeGameOptions();
+			this.makeGameOptions();
 			
 			this.table.inject(this.target, this.that.options.where);
 		},
 		newGame: function() {
 			this.table.set('class', 'moosweeper');
+			this.marked = 0;
+			this.that.fireEvent('markchanged');
 			
 			// cells
 			this.divs.each(function(item) {
@@ -244,7 +270,7 @@ var Moosweeper = new Class({
 			}
 			
 			if(this.that.options.css) {
-				var isInline = !this.that.options.css.test(/\.css$/i); // if not ends with ".css"
+				var isInline = this.that.options.css.test('{');
 				if(isInline) {
 					// inline styles
 					cssEl = new Element('style', {
@@ -253,10 +279,16 @@ var Moosweeper = new Class({
 					});
 				} else {
 					// external stylesheet
+					if(this.that.options.css.test(/\.css$/i)) {
+						var cssPath = this.that.options.css;
+					}
+					else {
+						var cssPath = jsDir+'Styles/'+this.that.options.css+'.css';
+					}
 					cssEl = new Element('link', {
 						rel: 'stylesheet',
 						type: 'text/css',
-						href: this.that.options.css
+						href: cssPath
 					});
 				}
 				if(this.cssEl) {
@@ -274,17 +306,36 @@ var Moosweeper = new Class({
 				summary: 'Minesweeper field',
 				events: {
 					mouseup: function(event) {
-						var target = $(event.target);
-						if(event.rightClick) {
-							if(target.get('tag') == 'div') this.mark(target);
-						} else {
-							if(target.get('tag') == 'div') this.show(target);
+						if(!this.that.model.finished) {
+							var target = $(event.target);
+							if(event.rightClick) {
+								if(target.get('tag') == 'div') this.mark(target);
+							} else {
+								if(target.get('tag') == 'div') this.show(target);
+							}
 						}
 					}.bind(this),
+					// disable contextmenu
 					contextmenu: function(event) {
 						return false;
-					}.bind(this),
-					// disableSelection
+					}.bind(this)
+				}
+			});
+			
+			// add classes when game won or lost
+			this.that.addEvents({
+				win: function() {
+					this.table.addClass('win');
+				}.bind(this),
+				lose: function() {
+					this.table.addClass('lose');
+				}.bind(this)
+			});
+			
+			// tbody
+			this.tbody = new Element('tbody', {
+				events: {
+					// disable selection
 					mousedown: function() { // Mozilla
 						return false;
 					},
@@ -293,9 +344,6 @@ var Moosweeper = new Class({
 					}
 				}
 			});
-			
-			// tbody
-			this.tbody = new Element('tbody');
 			this.tbody.inject(this.table);
 			
 			// create cells
@@ -330,10 +378,13 @@ var Moosweeper = new Class({
 				if(div.hasClass('marked')) {
 					div.removeClass('marked');
 					div.set('text', this.that.options.symbols.covered);
+					this.marked--;
 				} else {
 					div.addClass('marked');
 					div.set('text', this.that.options.symbols.marked);
+					this.marked++;
 				}
+				this.that.fireEvent('markchanged');
 			}
 		},
 		show: function(div, options) {
@@ -343,7 +394,11 @@ var Moosweeper = new Class({
 			// if force is true, decover the cell even if it's marked
 			if(div.hasClass('covered') && (options.force || !div.hasClass('marked'))) {
 				if(options.removeMark) {
-					div.removeClass('marked');
+					if(div.hasClass('marked')) {
+						div.removeClass('marked');
+						this.marked--;
+						this.that.fireEvent('markchanged');
+					}
 				}
 				
 				var x = div.retrieve('x');
@@ -399,55 +454,143 @@ var Moosweeper = new Class({
 		},
 		getDiv: function(x, y) {
 			return this.divs[y][x];
-		}
-		/*,
+		},
+		// game options
 		makeGameOptions: function() {
 			// game options
-			if(this.options.gameOptions.interface) {
+			if(this.that.options.gameOptions.interface) {
 				// process interface string
-				var interfaceHTML = this.options.gameOptions.interface;
-				['status', 'countdown', 'newgame'].each(function(item) {
-					interfaceHTML = interfaceHTML.replace('%'+item+'%', '<span class="gameoption '+item+'"></span>');
+				var interfaceHTML = this.that.options.gameOptions.interface;
+				this.gameOptions.each(function(value, key) {
+					interfaceHTML = interfaceHTML.replace('%'+key+'%', '<span class="gameoption '+key+'"></span>', 'g');
 				});
 				
-				var gameOptionsElType = (this.options.gameOptions.where == 'top') ? 'thead' : 'tfoot';
+				var gameOptionsElType = (this.that.options.gameOptions.where == 'top') ? 'thead' : 'tfoot';
 				
 				// tfoot|thead.gameoptions > tr > th[colspan]
 				this.gameOptionsEl = new Element(gameOptionsElType, {
 					'class': 'gameoptions'
-				}).grab(new Element('tr').grab(new Element('th', {
-					colspan: this.options.cols,
-					html: interfaceHTML
-				})));
+				})
+				.grab(new Element('tr')
+					.grab(new Element('th', {
+						colspan: this.that.options.cols,
+						html: interfaceHTML
+					}))
+				);
 				
 				// add gameOptionEls to index
 				this.gameOptionsEl.getElements('.gameoption').each(function(item) {
 					var gameOptionName = item.get('class').split(' ')[1]; // the second class of the el
-					if(!this.gameOptions.has(gameOptionName)) {
-						this.gameOptions.set(gameOptionName, []);
+					if(!this.gameOptionsEls.has(gameOptionName)) {
+						this.gameOptionsEls.set(gameOptionName, []);
 					}
-					this.gameOptions.set(gameOptionName, this.gameOptions.get(gameOptionName).push(item));
+					this.gameOptionsEls[gameOptionName].push($(item));
 				}, this);
 				
-				this.gameOptionsEl.inject(this.view.table);
+				this.gameOptionsEls.each(function(value, key) {
+					this.gameOptions[key].apply(this);
+				}, this);
+				
+				this.gameOptionsEl.inject(this.table);
 			}
 		},
+		gameOptions: $H({
+			smiley: function() {
+				var setSmiley = function(smiley) {
+					smiley = '<div class="icon '+smiley+'" title="'+smiley+'"></div>';
+					this.setGameOption('smiley', smiley);
+				}.bind(this);
+				this.that.addEvents({
+					newgame: setSmiley.pass('running'),
+					win: setSmiley.pass('win'),
+					lose: setSmiley.pass('lose')
+				});
+				this.tbody.addEvent('mousedown', function(event) {
+					if(!this.that.model.finished && !event.rightClick) {
+						setSmiley('unsure');
+					}
+				}.bind(this));
+				window.addEvent('mouseup', function() {
+					if(!this.that.model.finished) {
+						setSmiley('running');
+					}
+				}.bind(this));
+			},
+			status: function() {
+				var setStatus = function(status) {
+					this.setGameOption('status', status);
+				};
+				
+				this.that.addEvents({
+					win: setStatus.pass('Won!', this),
+					lose: setStatus.pass('Lost!', this),
+					newgame: setStatus.pass('Running', this)
+				});
+			},
+			/*countdown: function() {
+				
+			},
+			time: function() {
+				
+			},
+			highscore: function() {
+				
+			},*/
+			cells: function() {
+				this.that.addEvent('newgame', function() {
+					this.setGameOption('cells', this.that.model.cells);
+				}, this);
+			},
+			mines: function() {
+				this.that.addEvent('newgame', function() {
+					this.setGameOption('mines', this.that.model.mines);
+				}, this);
+			},
+			cellsleft: function() {
+				var setCellsleft = function() {
+					this.setGameOption('cellsleft', this.that.model.cellsLeft);
+				}.bind(this);
+				this.that.addEvents({
+					celldiscovered: setCellsleft,
+					newgame: setCellsleft
+				});
+			},
+			minesleft: function() {
+				var setMinesleft = function() {
+					this.setGameOption('minesleft', this.that.model.mines - this.marked);
+				}.bind(this);
+				
+				this.that.addEvents({
+					markchanged: setMinesleft,
+					newgame: setMinesleft
+				});
+			},
+			newgame: function() {
+				this.setGameOption('newgame', new Element('input', {
+					type: 'button',
+					value: 'New Game',
+					events: {
+						click: function() {
+							this.that.newGame();
+						}.bind(this)
+					}
+				}));
+			}
+		}),
 		setGameOption: function(option, value) {
-			if(this.gameOptionsEls.option) {
-				this.gameOptionsEls.get(option).each(function() {
-					this.set('text', value);
+			if(this.gameOptionsEls.has(option)) {
+				this.gameOptionsEls.get(option).each(function(item) {
+					if($type(value) === 'element') {
+						item.set('html', '');
+						var el = value.clone();
+						el.cloneEvents(value);
+						el.inject(item);
+					}
+					else {
+						item.set('html', value);
+					}
 				});
 			}
-		},
-		showAll: function() {
-			this.eachField(function(item) {
-				item.show();
-			});
-		},
-		showMines: function() {
-			this.mines.each(function(item) {
-				item.show();
-			});
-		}*/
+		}
 	}
 });

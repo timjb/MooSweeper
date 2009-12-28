@@ -1,22 +1,47 @@
-/* Style for MooSweeper */
+/* Style for MooSweeper by Tim Baumann*/
 
 /* (cc) font from http://www.dataloo.de/parole-font-carepaket-fur-den-politischen-widerstand-537.html */
 @font-face { font-family: 'Parole'; src: url(Parole.otf); }
 
 .moosweeper, .moosweeper * { margin: 0; padding: 0; }
 
-.moosweeper { border-collapse: collapse; font-family: Parole; }
-	.moosweeper caption { color: #888; font-size: 48px; margin: 0 0 -5px; postion: relative; transform: rotate(-3deg); -moz-transform: rotate(-3deg); -webkit-transform: rotate(-3deg); z-index: -1; }
-	.moosweeper td { background: #333; border: 1px solid #444; color: #444; }
-		.moosweeper .marked { background: #888 !important; color: #555 !important; }
-			.moosweeper .marked.mine { background: #698B22 !important; }
-		.moosweeper .discovered { background: rgb(22,12,0); }
-			.moosweeper .mine { background: #5c6d09; color: #fff; }
-				.moosweeper.lose .mine { background: rgb(164,22,0); }
-			.moosweeper .minescount0 { color: #222; }
-			.moosweeper .minescount1 { color: #777; }
-			.moosweeper .minescount2 { color: rgb(149,79,12); }
-			.moosweeper .minescount3 { color: rgb(233,115,0); }
-			.moosweeper .minescount4, .moosweeper td.minesCount5, .minesCount6, .minesCount7, .minesCount8 { color: rgb(139, 37, 0); }
-		.moosweeper td div { cursor: default; font-size: 24px; font-weight: bold; height: 36px; line-height: 36px; text-align: center; width: 36px; }
-			.moosweeper td:hover div { background: #222; }
+.moosweeper { border-collapse: collapse; font: 15px Parole, 'Arial Black', sans-serif; }
+
+.moosweeper caption { color: #888; font-size: 48px; margin: 0 0 -5px; postion: relative; transform: rotate(-3deg); -moz-transform: rotate(-3deg); -webkit-transform: rotate(-3deg); z-index: -1; }
+
+.moosweeper td { border: 1px solid #444; color: #444; }
+.moosweeper td div { cursor: default; font-size: 24px; font-weight: bold; height: 36px; line-height: 36px; text-align: center; width: 36px; }
+.moosweeper.running td:hover div { background: #222; }
+
+/* cells */
+.moosweeper .covered { background: #333; }
+.moosweeper .discovered { background: rgb(22,12,0) !important; }
+.moosweeper .marked { background: #888 !important; color: #555 !important; }
+/* mines */
+.moosweeper tbody .marked.mine { background: #698B22 !important; }
+.moosweeper .mine { color: #fff; }
+.moosweeper.win .mine { background: #5c6d09 !important; }
+.moosweeper.lose .mine { background: rgb(164,22,0) !important; }
+/* minescount */
+.moosweeper .minescount0 { color: transparent; }
+.moosweeper .minescount1 { color: #777; }
+.moosweeper .minescount2 { color: rgb(149,79,12); }
+.moosweeper .minescount3 { color: rgb(233,115,0); }
+.moosweeper .minescount4, .moosweeper td.minesCount5, .minesCount6, .minesCount7, .minesCount8 { color: rgb(139, 37, 0); }
+
+/* game options */
+.moosweeper .gameoptions th { background: #000; color: #eee; font-weight: normal; line-height: 30px; padding: 0 10px; }
+.moosweeper .gameoptions .third { float: left; width: 33.33%; }
+.moosweeper .gameoptions .third.first { text-align: left; }
+.moosweeper .gameoptions .third.second { text-align: center; }
+.moosweeper .gameoptions .third.last { text-align: right; }
+
+/* buttons (smiley, newGame) */
+.moosweeper .gameoption a { color: #fff; background-color: #222; }
+.moosweeper .gameoption a:hover { background-color: #444; }
+.moosweeper .gameoption a:active { background-color: #666; }
+
+/* smiley */
+.moosweeper .gameoption.smiley a { display: inline-block; font: bold 10px monospace; line-height: 22px; width: 22px; vertical-align: middle; transform: rotate(90deg); -moz-transform: rotate(90deg); -webkit-transform: rotate(90deg); }
+/* newGame */
+.moosweeper .gameoption.newGame a { line-height: 22px; padding: 3px; }

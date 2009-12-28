@@ -12,6 +12,7 @@ provides: MooSweeper
 */
 
 // get dir of this included js file (like http://css.dzone.com/news/query-string-aware-javascript)
+
 Element.implement('getLastRecursive', function() {
 	var lastChild = this.getLast();
 	if(lastChild == null) {
@@ -23,6 +24,7 @@ Element.implement('getLastRecursive', function() {
 
 var scriptEl = $(document.documentElement).getLastRecursive();
 
+// Firebug can be the last element
 if(scriptEl.get('id') == '_firebugConsole') {
 	scriptEl = scriptEl.getPrevious().getLastRecursive();
 }
@@ -37,6 +39,8 @@ if(scriptEl.get('tag') == 'script') {
 } else {
 	var jsDir = 'MooSweeper/';
 }
+
+
 
 var Moosweeper = new Class({
 	Implements: [Options, Events],
@@ -73,6 +77,7 @@ var Moosweeper = new Class({
 		/* => rows: 16,
 		      cols: 16,
 		      minesContingent: 0.16, */
+		countdown: 0,
 		
 		// view
 		caption: 'Moosweeper',
@@ -84,10 +89,10 @@ var Moosweeper = new Class({
 			mine:    '•'
 		},
 		gameOptions: {
-			where: 'top',
+			where: 'bottom',
 			interface: '<div class="third first">%newGame%</div>'+
 			           '<div class="third second">%smiley%</div>'+
-			           '<div class="third last">%minesLeft%̚</div>',
+			           '<div class="third last">%minesLeft%</div>',
 			smiley: {
 				running: '8-)',
 				lose:    'X-(',
@@ -241,11 +246,11 @@ var Moosweeper = new Class({
 			}, this);
 			
 			return neighbors;
-		},
+		}
 	},
-	
 	view: {
 		// elements
+		cssEl: null,
 		table: null,
 		tbody: null,
 		target: null, // where to insert the table
@@ -287,10 +292,17 @@ var Moosweeper = new Class({
 				var isInline = this.that.options.css.test('{');
 				if(isInline) {
 					// inline styles
-					cssEl = new Element('style', {
-						type: 'text/css',
-						text: this.that.options.css
-					});
+					if(Browser.Engine.trident) {
+						// http://msdn.microsoft.com/en-us/library/ms533897%28VS.85%29.aspx => How to inject NoScope elements into a page with innerHTML
+						var cssEl = new Element('div', {
+							html: '<div>&nsbp;</div><style type="text/css">'+this.that.options.css+'</style>'
+						});
+					} else {
+						var cssEl = new Element('style', {
+							type: 'text/css',
+							text: this.that.options.css
+						});
+					}
 				} else {
 					// external stylesheet
 					if(this.that.options.css.test(/\.css$/i)) {
@@ -299,9 +311,10 @@ var Moosweeper = new Class({
 					else {
 						var cssPath = jsDir+'Styles/'+this.that.options.css+'.css';
 					}
-					cssEl = new Element('link', {
+					var cssEl = new Element('link', {
 						rel: 'stylesheet',
 						type: 'text/css',
+						media: 'screen',
 						href: cssPath
 					});
 				}

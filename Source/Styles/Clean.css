@@ -1,23 +1,29 @@
-/* Style for MooSweeper */
+/* Style for MooSweeper by Tim Baumann */
+
+
+
 
 .moosweeper, .moosweeper * { margin: 0; padding: 0; }
 
-.moosweeper { border-collapse: collapse; box-shadow: 0 0 5px #999; -moz-box-shadow: 0 0 5px #999; -webkit-box-shadow: 0 0 5px #999; }
+.moosweeper { border-collapse: collapse; font: 15px helvetica, arial, sans-serif; }
+
 .moosweeper caption { color: #4b647d; font-size: 32px; letter-spacing: -0.5px; margin: 21px 0 -7px; text-align: center; }
+.moosweeper tbody { box-shadow: 0 0 5px #999; -moz-box-shadow: 0 0 5px #999; -webkit-box-shadow: 0 0 5px #999; }
 
 .moosweeper td { border: 1px solid #969696; }
 .moosweeper td div { cursor: default; font-family: 'Georgia', serif; font-size: 24px; font-weight: bold; height: 36px; line-height: 36px; text-align: center; width: 36px; }
 .moosweeper.running td:hover div { background: #fff; color: #eee; }
 
+/* cells */
 .moosweeper .covered { background: #eee; color: #fff; }
 .moosweeper .discovered { background: #fff; }
 .moosweeper .marked { background: #6496c8 !important; -moz-box-shadow: 0 0 10px #888; color: #fff !important; }
-
+/* mines */
+.moosweeper .marked.mine { background: #64c896 !important; } /* IE fails here (double classes) */
 .moosweeper .mine { box-shadow: 0 0 5px #999; -moz-box-shadow: 0 0 5px #999; -webkit-box-shadow: 0 0 5px #999; color: #fff !important; }
 .moosweeper.win .mine { background: #4b4b4b !important; }
 .moosweeper.lose .mine { background: #800 !important; }
-.moosweeper .mine.marked { background: #64c896 !important; }
-
+/* minescount */
 .moosweeper .minescount0 { color: #f0f0f0 !important; }
 .moosweeper .minescount1 { color: #4a708b !important; }
 .moosweeper .minescount2 { color: #3cb371 !important; }

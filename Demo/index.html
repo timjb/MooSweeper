@@ -45,8 +45,9 @@ window.addEvent('domready', function() {
 	// MooSweeper
 	var mooSweeper = new Moosweeper($('container'), {
 		caption: 'MooSweeper', // header
-		css: $('selectstyle').value, // stylesheet
+		css: $('selectstyle').value || 'Clean', // stylesheet
 		preset: 'easy', // or: medium, hard
+		countdown: 60,
 		where: 'top' // where to inject
 	});
 	

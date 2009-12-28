@@ -85,7 +85,21 @@ var Moosweeper = new Class({
 		},
 		gameOptions: {
 			where: 'top',
-			interface: '%status%, %newgame%, %smiley%, %minesleft%'
+			interface: '<div class="third first">%newGame%</div>'+
+			           '<div class="third second">%smiley%</div>'+
+			           '<div class="third last">%minesLeft%̚</div>',
+			smiley: {
+				running: '8-)',
+				lose:    'X-(',
+				win:     ':-D',
+				unsure:  ':-O'
+			},
+			status: {
+				running: 'Running',
+				lose:    'Lost!',
+				win:     'Won!'
+			},
+			newGame: 'New Game'
 		}
 	},
 	
@@ -250,7 +264,7 @@ var Moosweeper = new Class({
 			this.table.inject(this.target, this.that.options.where);
 		},
 		newGame: function() {
-			this.table.set('class', 'moosweeper');
+			this.table.set('class', 'moosweeper running');
 			this.marked = 0;
 			this.that.fireEvent('markchanged');
 			
@@ -302,39 +316,42 @@ var Moosweeper = new Class({
 		createField: function() {
 			// table
 			this.table = new Element('table', {
-				'class': 'moosweeper',
-				summary: 'Minesweeper field',
-				events: {
-					mouseup: function(event) {
-						if(!this.that.model.finished) {
-							var target = $(event.target);
-							if(event.rightClick) {
-								if(target.get('tag') == 'div') this.mark(target);
-							} else {
-								if(target.get('tag') == 'div') this.show(target);
-							}
-						}
-					}.bind(this),
-					// disable contextmenu
-					contextmenu: function(event) {
-						return false;
-					}.bind(this)
-				}
+				'class': 'moosweeper running',
+				summary: 'Minesweeper field'
 			});
 			
 			// add classes when game won or lost
 			this.that.addEvents({
 				win: function() {
-					this.table.addClass('win');
+					this.table.removeClass('running').addClass('win');
 				}.bind(this),
 				lose: function() {
-					this.table.addClass('lose');
+					this.table.removeClass('running').addClass('lose');
 				}.bind(this)
 			});
 			
 			// tbody
 			this.tbody = new Element('tbody', {
 				events: {
+					mouseup: function(event) {
+						if(!this.that.model.finished) {
+							var target = $(event.target);
+							if(target.get('tag') == 'td') { // user has clicked on the border
+								target = target.getElement('div');
+							}
+							if(target.get('tag') == 'div') {
+								if(event.rightClick) {
+									this.mark(target);
+								} else {
+									this.show(target);
+								}
+							}
+						}
+					}.bind(this),
+					// disable contextmenu
+					contextmenu: function(event) {
+						return false;
+					}.bind(this),
 					// disable selection
 					mousedown: function() { // Mozilla
 						return false;
@@ -462,7 +479,7 @@ var Moosweeper = new Class({
 				// process interface string
 				var interfaceHTML = this.that.options.gameOptions.interface;
 				this.gameOptions.each(function(value, key) {
-					interfaceHTML = interfaceHTML.replace('%'+key+'%', '<span class="gameoption '+key+'"></span>', 'g');
+					interfaceHTML = interfaceHTML.replace('%'+key+'%', '<span title="'+key+'" class="gameoption '+key+'"></span>', 'g');
 				});
 				
 				var gameOptionsElType = (this.that.options.gameOptions.where == 'top') ? 'thead' : 'tfoot';
@@ -497,9 +514,22 @@ var Moosweeper = new Class({
 		gameOptions: $H({
 			smiley: function() {
 				var setSmiley = function(smiley) {
-					smiley = '<div class="icon '+smiley+'" title="'+smiley+'"></div>';
-					this.setGameOption('smiley', smiley);
+					var smileyText = (this.that.options.gameOptions.smiley[smiley]) ? this.that.options.gameOptions.smiley[smiley] : '';
+					smileyEl = new Element('a', {
+						href: '#',
+						'class': smiley,
+						title: smiley,
+						text: smileyText,
+						events: {
+							mouseup: function() {
+								this.that.newGame();
+								return false;
+							}.bind(this)
+						}
+					});
+					this.setGameOption('smiley', smileyEl);
 				}.bind(this);
+				
 				this.that.addEvents({
 					newgame: setSmiley.pass('running'),
 					win: setSmiley.pass('win'),
@@ -522,9 +552,9 @@ var Moosweeper = new Class({
 				};
 				
 				this.that.addEvents({
-					win: setStatus.pass('Won!', this),
-					lose: setStatus.pass('Lost!', this),
-					newgame: setStatus.pass('Running', this)
+					win: setStatus.pass(this.that.options.gameOptions.status.win, this),
+					lose: setStatus.pass(this.that.options.gameOptions.status.lose, this),
+					newgame: setStatus.pass(this.that.options.gameOptions.status.running, this)
 				});
 			},
 			/*countdown: function() {
@@ -544,34 +574,35 @@ var Moosweeper = new Class({
 			mines: function() {
 				this.that.addEvent('newgame', function() {
 					this.setGameOption('mines', this.that.model.mines);
-				}, this);
+				}.bind(this));
 			},
-			cellsleft: function() {
-				var setCellsleft = function() {
-					this.setGameOption('cellsleft', this.that.model.cellsLeft);
+			cellsLeft: function() {
+				var setCellsLeft = function() {
+					this.setGameOption('cellsLeft', this.that.model.cellsLeft);
 				}.bind(this);
 				this.that.addEvents({
-					celldiscovered: setCellsleft,
-					newgame: setCellsleft
+					celldiscovered: setCellsLeft,
+					newgame: setCellsLeft
 				});
 			},
-			minesleft: function() {
-				var setMinesleft = function() {
-					this.setGameOption('minesleft', this.that.model.mines - this.marked);
+			minesLeft: function() {
+				var setMinesLeft = function() {
+					this.setGameOption('minesLeft', this.that.model.mines - this.marked);
 				}.bind(this);
 				
 				this.that.addEvents({
-					markchanged: setMinesleft,
-					newgame: setMinesleft
+					markchanged: setMinesLeft,
+					newgame: setMinesLeft
 				});
 			},
-			newgame: function() {
-				this.setGameOption('newgame', new Element('input', {
-					type: 'button',
-					value: 'New Game',
+			newGame: function() {
+				this.setGameOption('newGame', new Element('a', {
+					href: '#',
+					text: this.that.options.gameOptions.newGame,
 					events: {
 						click: function() {
 							this.that.newGame();
+							return false;
 						}.bind(this)
 					}
 				}));

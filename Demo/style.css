@@ -3,7 +3,7 @@
 html { display: table; height: 100%; width: 100%; }
 body { background: #fff; -moz-box-shadow: inset 0 0 100px #ccc; display: table-cell; font: 15px helvetica, arial, sans-serif; vertical-align: middle; }
 
-#container { margin: 0 auto 20px; position: relative; width: 592px; }
+#container { margin: 0 auto 40px; position: relative; width: 592px; }
 
 .about { bottom: 0; color: #444; position: absolute; right: 0; width: 276px; }
 

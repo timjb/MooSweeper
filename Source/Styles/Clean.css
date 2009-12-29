@@ -12,23 +12,22 @@
 
 .moosweeper td { border: 1px solid #969696; }
 .moosweeper td div { cursor: default; font-family: 'Georgia', serif; font-size: 24px; font-weight: bold; height: 36px; line-height: 36px; text-align: center; width: 36px; }
-.moosweeper.running td:hover div { background: #fff; color: #eee; }
+.moosweeper.running td:hover div.covered { background: #fff; color: #eee; }
 
 /* cells */
-.moosweeper .covered { background: #eee; color: #fff; }
+.moosweeper .covered { background: #e8e8e8; color: #fff; }
 .moosweeper .discovered { background: #fff; }
-.moosweeper tbody td .marked { background: #6496c8 !important; -moz-box-shadow: 0 0 10px #888; color: #fff !important; }
+.moosweeper .marked { background: #6496c8 !important; -moz-box-shadow: 0 0 10px #888; color: #fff !important; }
 /* mines */
-.moosweeper tbody .mine.marked { background: #64c896 !important; } /* IE fails here (double classes) */
-.moosweeper tbody .mine { box-shadow: 0 0 5px #999; -moz-box-shadow: 0 0 5px #999; -webkit-box-shadow: 0 0 5px #999; color: #fff !important; }
-.moosweeper.win .mine { background: #4b4b4b !important; }
-.moosweeper.lose .mine { background: #800 !important; }
+.moosweeper .mine { box-shadow: 0 0 5px #999; -moz-box-shadow: 0 0 5px #999; -webkit-box-shadow: 0 0 5px #999; color: #fff; }
+.moosweeper.won .mine { background: #4b4b4b; }
+.moosweeper.lost .mine { background: #800; }
 /* minescount */
-.moosweeper .minescount0 { color: #f0f0f0 !important; }
-.moosweeper .minescount1 { color: #4a708b !important; }
-.moosweeper .minescount2 { color: #3cb371 !important; }
-.moosweeper .minescount3 { color: #ffd700 !important; }
-.moosweeper .minescount4 { color: #ee7600 !important; }
+.moosweeper .minescount0 { color: #f0f0f0; }
+.moosweeper .minescount1 { color: #4a708b; }
+.moosweeper .minescount2 { color: #3cb371; }
+.moosweeper .minescount3 { color: #ffd700; }
+.moosweeper .minescount4 { color: #ee7600; }
 .moosweeper .minescount5, .minescount6, .minescount7, .minescount8 { color: #8b2500; }
 
 /* game options */
@@ -48,8 +47,8 @@
 .moosweeper .gameoption.smiley a { background-image: url(smileys.png) /* icons from silk */; background-repeat: no-repeat; color: transparent; display: inline-block; font-size: 1px; height: 22px; vertical-align: baseline; width: 22px; }
 .moosweeper .gameoption.smiley .running { background-position: 3px -23px; }
 .moosweeper .gameoption.smiley .unsure { background-position: 3px -49px; }
-.moosweeper .gameoption.smiley .lose { background-position: 3px -75px; }
-.moosweeper .gameoption.smiley .win { background-position: 3px 3px; }
+.moosweeper .gameoption.smiley .lost { background-position: 3px -75px; }
+.moosweeper .gameoption.smiley .won { background-position: 3px 3px; }
 
 /* newGame */
 .moosweeper .gameoption.newGame a { line-height: 22px; padding: 3px; }

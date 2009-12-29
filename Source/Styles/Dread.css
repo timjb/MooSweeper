@@ -9,19 +9,19 @@
 
 .moosweeper caption { color: #888; font-size: 48px; margin: 0 0 -5px; postion: relative; transform: rotate(-3deg); -moz-transform: rotate(-3deg); -webkit-transform: rotate(-3deg); z-index: -1; }
 
+
 .moosweeper td { border: 1px solid #444; color: #444; }
 .moosweeper td div { cursor: default; font-size: 24px; font-weight: bold; height: 36px; line-height: 36px; text-align: center; width: 36px; }
-.moosweeper.running td:hover div { background: #222; }
+.moosweeper.running td:hover div.covered { background: #222; }
 
 /* cells */
-.moosweeper .covered { background: #333; }
-.moosweeper .discovered { background: rgb(22,12,0) !important; }
-.moosweeper .marked { background: #888 !important; color: #555 !important; }
+.moosweeper .covered { background: #3a3a3a; }
+.moosweeper .discovered { background: rgb(22,12,0); }
+.moosweeper .marked, .moosweeper.won .mine { background: #888 !important; color: #555 !important; }
 /* mines */
-.moosweeper tbody .marked.mine { background: #698B22 !important; }
-.moosweeper .mine { color: #fff; }
-.moosweeper.win .mine { background: #5c6d09 !important; }
-.moosweeper.lose .mine { background: rgb(164,22,0) !important; }
+.moosweeper .mine { color: #fff; font-size: 20px; }
+.moosweeper.lost .mine { background: #7c230e; }
+
 /* minescount */
 .moosweeper .minescount0 { color: transparent; }
 .moosweeper .minescount1 { color: #777; }
@@ -43,5 +43,6 @@
 
 /* smiley */
 .moosweeper .gameoption.smiley a { display: inline-block; font: bold 10px monospace; line-height: 22px; width: 22px; vertical-align: middle; transform: rotate(90deg); -moz-transform: rotate(90deg); -webkit-transform: rotate(90deg); }
+
 /* newGame */
 .moosweeper .gameoption.newGame a { line-height: 22px; padding: 3px; }

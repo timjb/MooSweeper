@@ -12,7 +12,6 @@ provides: MooSweeper
 */
 
 // get dir of this included js file (like http://css.dzone.com/news/query-string-aware-javascript)
-
 Element.implement('getLastRecursive', function() {
 	var lastChild = this.getLast();
 	if(lastChild == null) {
@@ -21,14 +20,11 @@ Element.implement('getLastRecursive', function() {
 		return lastChild.getLastRecursive();
 	}
 });
-
 var scriptEl = $(document.documentElement).getLastRecursive();
-
-// Firebug can be the last element
+// Firebug could be the last element
 if(scriptEl.get('id') == '_firebugConsole') {
 	scriptEl = scriptEl.getPrevious().getLastRecursive();
 }
-
 if(scriptEl.get('tag') == 'script') {
 	var jsDir = scriptEl.get('src').split('/');
 	jsDir.pop();
@@ -40,10 +36,25 @@ if(scriptEl.get('tag') == 'script') {
 	var jsDir = 'MooSweeper/';
 }
 
-
+// save Events and fire them later
+var FireLater = new Class({
+	Implements: Events,
+	
+	fireLaterEvents: [],
+	fireLater: function() {
+		this.fireLaterEvents.push($splat(arguments));
+	},
+	fireNow: function() {
+		var events = $A(this.fireLaterEvents);
+		this.fireLaterEvents = [];
+		events.each(function(item) {
+			this.fireEvent(item[0], item[1], item[2]);
+		}, this);
+	}
+});
 
 var Moosweeper = new Class({
-	Implements: [Options, Events],
+	Implements: [Options, FireLater],
 	
 	// the original m$ windows minesweeper presets
 	presets: $H({
@@ -66,7 +77,9 @@ var Moosweeper = new Class({
 	options: {
 		// events
 		onWin: $empty,
-		onLose: $empty,
+		onLose: function(reason) {
+			if(reason == 'time') alert('Time\'s up!');
+		},
 		onMinimumtime: function(time) {
 			alert('New minimum time: '+time+' seconds');
 		},
@@ -82,7 +95,7 @@ var Moosweeper = new Class({
 		// view
 		caption: 'Moosweeper',
 		where: 'bottom',
-		css: 'MooSweeperStyles/Clean.css',
+		css: jsDir+'Styles/Clean.css',
 		symbols: {
 			covered: '?',
 			marked:  '!',
@@ -94,9 +107,9 @@ var Moosweeper = new Class({
 			           '<div class="third second">%smiley%</div>'+
 			           '<div class="third last">%countdown%</div>',
 			smiley: {
-				running: '8-)',
-				lose:    'X-(',
-				win:     ':-D',
+				running: ':-)',
+				lost:    'X-(',
+				won:     ':-D',
 				unsure:  ':-O'
 			},
 			status: {
@@ -111,17 +124,22 @@ var Moosweeper = new Class({
 	initialize: function(target, options) {
 		this.prepareOptions(options);
 		
-		// references to the whole class
+		// add references to the whole class to model and view
 		[this.model, this.view].each(function(item) {
 			item.that = this;
 		}, this);
 		
+		this.view.initialize();
 		this.model.initialize();
-		this.view.initialize(target);
+		this.view.inject(target);
 		
 		this.fireEvent('newgame');
 	},
 	newGame: function() {
+		if(!this.model.finished) {
+			this.fireEvent('finish');
+		}
+		
 		this.model.newGame();
 		this.view.newGame();
 		
@@ -168,14 +186,6 @@ var Moosweeper = new Class({
 			this.calculateCells();
 			this.createField();
 			this.distributeMines();
-			this.that.addEvents({
-				win: function() {
-					this.view.onWin();
-				},
-				lose: function(reason) {
-					this.view.onLose();
-				}
-			});
 			this.startTimer();
 			this.initializeTimer();
 		},
@@ -224,12 +234,12 @@ var Moosweeper = new Class({
 			}
 		},
 		initializeTimer: function() {
-			var clearInterval = function() {
+			this.that.addEvent('finish', function() {
 				$clear(this.interval);
-			}.bind(this);
-			this.that.addEvent('lose', clearInterval);
-			this.that.addEvent('win', function() {
-				if(this.that.options.minimumTime) {
+			}.bind(this));
+			
+			if(this.that.options.minimumTime) {
+				this.that.addEvent('win', function() {
 					// minimum time
 					var cookie = Cookie.read('moosweeperminimumtime');
 					if(cookie) {
@@ -239,10 +249,8 @@ var Moosweeper = new Class({
 						Cookie.write('moosweeperminimumtime', this.time);
 						this.that.fireEvent('minimumtime', this.time);
 					}
-				}
-				
-				clearInterval();
-			}.bind(this));
+				}.bind(this));
+			}
 		},
 		startTimer: function() {
 			this.time = 0;
@@ -252,10 +260,14 @@ var Moosweeper = new Class({
 				this.time++;
 				this.that.fireEvent('second');
 				if(this.that.options.countdown > 0 && this.time == this.that.options.countdown) {
+					this.that.fireEvent('finish');
 					this.that.fireEvent('lose', 'time');
 				}
 			};
 			this.interval = increaseTimer.periodical(1000, this);
+		},
+		getMinimumTime: function() {
+			return Cookie.read('moosweeperminimumtime');
 		},
 		get: function(x, y) {
 			if($defined(this.field[x][y])) {
@@ -264,15 +276,15 @@ var Moosweeper = new Class({
 					// fire events
 					if(minesCount == -1) {
 						this.finished = true;
-						this.that.fireEvent('lose', 'mine');
-						return -2;
+						this.that.fireLater('finish');
+						this.that.fireLater('lose', 'mine');
 					} else {
 						this.cellsLeft--;
-						this.that.fireEvent('celldiscovered');
+						this.that.fireEvent('discovercell');
 						if(this.cellsLeft <= 0) {
 							this.finished = true;
-							this.that.fireEvent('win');
-							return -2;
+							this.that.fireLater('finish');
+							this.that.fireLater('win', this.time);
 						}
 					}
 				}
@@ -309,19 +321,18 @@ var Moosweeper = new Class({
 		gameOptionsEls: $H(),
 		marked: 0, // how many mines are marked
 		
-		initialize: function(target) {
-			this.target = document.id(target);
-			
+		initialize: function() {
 			this.setCSS();
 			this.createField();
 			this.makeGameOptions();
-			
+		},
+		inject: function(target) {
+			this.target = document.id(target);
 			this.table.inject(this.target, this.that.options.where);
 		},
 		newGame: function() {
-			this.table.set('class', 'moosweeper running');
 			this.marked = 0;
-			this.that.fireEvent('markchanged');
+			this.that.fireEvent('markchange');
 			
 			// cells
 			this.divs.each(function(item) {
@@ -332,6 +343,9 @@ var Moosweeper = new Class({
 					});
 				}, this);
 			}, this);
+		},
+		addEvents: function() {
+			
 		},
 		setCSS: function(css) {
 			if(css) {
@@ -379,6 +393,23 @@ var Moosweeper = new Class({
 			this.table = new Element('table', {
 				'class': 'moosweeper running',
 				summary: 'Minesweeper field'
+			});
+			
+			// classes
+			this.that.addEvents({
+				newgame: function() {
+					this.table.removeClass('won').removeClass('lost').removeClass('finished').addClass('running');
+				}.bind(this),
+				finish: function() {
+					this.showMines();
+					this.table.removeClass('running').addClass('finished');
+				}.bind(this),
+				win: function() {
+					this.table.addClass('won');
+				}.bind(this),
+				lose: function() {
+					this.table.addClass('lost');
+				}.bind(this)
 			});
 			
 			// tbody
@@ -452,59 +483,62 @@ var Moosweeper = new Class({
 					div.set('text', this.that.options.symbols.marked);
 					this.marked++;
 				}
-				this.that.fireEvent('markchanged');
+				this.that.fireEvent('markchange');
 			}
 		},
 		show: function(div, options) {
-			if(!options) options = {};
-			// options can be: force, removeMark and noAvalanche
+			options = $merge({
+				force: false, // discover even cells which are marked
+				removeMark: false,
+				autoDiscover: true // discover all the neighbor cells if there are no mines around
+			}, options);
 			
-			// if force is true, decover the cell even if it's marked
+			// if options.force is true, discover the cell even if it's marked
 			if(div.hasClass('covered') && (options.force || !div.hasClass('marked'))) {
+				
+				// removeMark
 				if(options.removeMark) {
 					if(div.hasClass('marked')) {
 						div.removeClass('marked');
 						this.marked--;
-						this.that.fireEvent('markchanged');
+						this.that.fireEvent('markchange');
 					}
 				}
 				
+				// get minesCount with coordinates
 				var x = div.retrieve('x');
 				var y = div.retrieve('y');
-				
 				var minesCount = this.that.model.get(x, y);
 				
-				if(minesCount != -2) { // -2 means: game is finished => event was fired, in the event a new game can be started => don't show the cell
-					div.removeClass('covered').addClass('discovered');
-					if(minesCount == -1) {
-						div.set('text', this.that.options.symbols.mine);
-						div.addClass('mine');
-					} else {
-						div.set('text', minesCount);
-						div.addClass('minescount'+minesCount);
-						
-						if(!options.noAvalanche && minesCount === 0) { // there's no mine around, so we can discover all neighbor cells
-							this.that.model.getNeighbors(x, y).each(function(item) {
-								var neighborDiv = this.getDiv(item[0], item[1]);
-								if(neighborDiv.hasClass('covered')) {
-									this.show(neighborDiv, {
-										force: true,
-										removeMark: true
-									});
-								}
-							}, this);
-						}
+				div.removeClass('covered').addClass('discovered');
+				
+				if(minesCount == -1) {
+					// wham!
+					div.set('text', this.that.options.symbols.mine);
+					div.addClass('mine');
+					this.that.fireNow();
+				} else {
+					// you're lucky, no mine
+					div.set('text', minesCount);
+					div.addClass('minescount'+minesCount);
+					this.that.fireNow();
+					
+					// <autoDiscover>
+					if(options.autoDiscover && minesCount == 0) {
+						this.that.model.getNeighbors(x, y).each(function(item) {
+							var neighborDiv = this.getDiv(item[0], item[1]);
+							if(neighborDiv.hasClass('covered')) {
+								this.show(neighborDiv, {
+									force: true,
+									removeMark: true
+								});
+							}
+						}, this);
 					}
+					// </autoDiscover>
 				}
+				
 			}
-		},
-		onWin: function() {
-			this.table.removeClass('running').addClass('win');
-			this.showAll();
-		},
-		onLose: function() {
-			this.table.removeClass('running').addClass('lose');
-			this.showMines();
 		},
 		showAll: function() {
 			this.divs.each(function(item) {
@@ -512,7 +546,7 @@ var Moosweeper = new Class({
 					if(item.hasClass('covered')) {
 						this.show(item, {
 							force: true,
-							noAvalanche: true
+							autoDiscover: false
 						})
 					};
 				}, this);
@@ -591,8 +625,8 @@ var Moosweeper = new Class({
 				
 				this.that.addEvents({
 					newgame: setSmiley.pass('running'),
-					win: setSmiley.pass('win'),
-					lose: setSmiley.pass('lose')
+					win: setSmiley.pass('won'),
+					lose: setSmiley.pass('lost')
 				});
 				this.tbody.addEvent('mousedown', function(event) {
 					if(!this.that.model.finished && !event.rightClick) {
@@ -617,7 +651,7 @@ var Moosweeper = new Class({
 				});
 			},
 			time: function() {
-				this.setGameOption('countdown', this.that.model.time);
+				this.setGameOption('time', this.that.model.time);
 				this.that.addEvent('second', function() {
 					this.setGameOption('time', this.that.model.time);
 				}.bind(this));
@@ -636,19 +670,21 @@ var Moosweeper = new Class({
 				}
 			},
 			minimumTime: function() {
-				var minimumTime = Cookie.read('moosweeperminimumtime');
-				if(!$chk(minimumTime)) {
+				var minimumTime = this.that.model.getMinimumTime();
+				if(!$chk(minimumTime) || !this.that.options.minimumTime) {
 					minimumTime = 'n/a';
 				}
-				this.setGameOption('minimumTime', minimumTime);
-				this.that.addEvent('minimumtime', function(time) {
-					this.setGameOption('minimumTime', time);
-				}.bind(this));
+				else {
+					this.setGameOption('minimumTime', minimumTime);
+					this.that.addEvent('minimumtime', function(time) {
+						this.setGameOption('minimumTime', time);
+					}.bind(this));
+				}
 			},
 			cells: function() {
 				this.that.addEvent('newgame', function() {
 					this.setGameOption('cells', this.that.model.cells);
-				}, this);
+				}.bind(this));
 			},
 			mines: function() {
 				this.that.addEvent('newgame', function() {
@@ -659,8 +695,9 @@ var Moosweeper = new Class({
 				var setCellsLeft = function() {
 					this.setGameOption('cellsLeft', this.that.model.cellsLeft);
 				}.bind(this);
+				
 				this.that.addEvents({
-					celldiscovered: setCellsLeft,
+					discovercell: setCellsLeft,
 					newgame: setCellsLeft
 				});
 			},
@@ -670,12 +707,12 @@ var Moosweeper = new Class({
 				}.bind(this);
 				
 				this.that.addEvents({
-					markchanged: setMinesLeft,
-					newgame: setMinesLeft
-				});
-				this.that.addEvent('win', function() {
-					this.view.marked = this.model.mines;
-					setMinesLeft();
+					markchange: setMinesLeft,
+					newgame: setMinesLeft,
+					win: function() {
+						this.view.marked = this.model.mines;
+						setMinesLeft();
+					}
 				});
 			},
 			newGame: function() {

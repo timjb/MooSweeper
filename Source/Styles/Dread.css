@@ -30,7 +30,7 @@
 .moosweeper .minescount4, .moosweeper td.minesCount5, .minesCount6, .minesCount7, .minesCount8 { color: rgb(139, 37, 0); }
 
 /* game options */
-.moosweeper .gameoptions th { background: #000; color: #eee; font-weight: normal; line-height: 30px; padding: 0 10px; }
+.moosweeper .gameoptions th { background: #000; color: #eee; font: normal 15px Parole, monospace; line-height: 30px; padding: 0 10px; }
 .moosweeper .gameoptions .third { float: left; width: 33.33%; }
 .moosweeper .gameoptions .third.first { text-align: left; }
 .moosweeper .gameoptions .third.second { text-align: center; }

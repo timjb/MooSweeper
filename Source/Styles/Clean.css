@@ -17,10 +17,10 @@
 /* cells */
 .moosweeper .covered { background: #eee; color: #fff; }
 .moosweeper .discovered { background: #fff; }
-.moosweeper .marked { background: #6496c8 !important; -moz-box-shadow: 0 0 10px #888; color: #fff !important; }
+.moosweeper tbody td .marked { background: #6496c8 !important; -moz-box-shadow: 0 0 10px #888; color: #fff !important; }
 /* mines */
-.moosweeper .marked.mine { background: #64c896 !important; } /* IE fails here (double classes) */
-.moosweeper .mine { box-shadow: 0 0 5px #999; -moz-box-shadow: 0 0 5px #999; -webkit-box-shadow: 0 0 5px #999; color: #fff !important; }
+.moosweeper tbody .mine.marked { background: #64c896 !important; } /* IE fails here (double classes) */
+.moosweeper tbody .mine { box-shadow: 0 0 5px #999; -moz-box-shadow: 0 0 5px #999; -webkit-box-shadow: 0 0 5px #999; color: #fff !important; }
 .moosweeper.win .mine { background: #4b4b4b !important; }
 .moosweeper.lose .mine { background: #800 !important; }
 /* minescount */

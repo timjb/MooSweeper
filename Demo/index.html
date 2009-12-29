@@ -31,8 +31,8 @@
 		<dt>Style
 		<dd>
 			<select id=selectstyle>
-				<option>Clean</option>
-				<option>Dread</option>
+				<option value="Clean">Clean</option>
+				<option value="Dread">Dread</option>
 			</select>
 	</dl>
 </div>
@@ -47,7 +47,6 @@ window.addEvent('domready', function() {
 		caption: 'MooSweeper', // header
 		css: $('selectstyle').value || 'Clean', // stylesheet
 		preset: 'easy', // or: medium, hard
-		countdown: 60,
 		where: 'top' // where to inject
 	});
 	

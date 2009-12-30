@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <title>MooSweeper Demo</title>
-<meta name=keywords content="MooTools, Minesweeper, JavaScript, JS, OOP">
+<meta name=keywords content="MooTools, Minesweeper, JavaScript, JS">
 <meta name=author content="Tim Baumann">
 <meta name=language content=en>
 <link rel="shortcut icon" href=favicon.png>
@@ -14,7 +14,7 @@
 <div id=container>
 
 <div class=about>
-	<p>Costumizable Minesweeper clone for the MooTools JS Framework.
+	<p>Costumizable Minesweeper clone for MooTools.
 	<dl>
 		<dt>Author
 		<dd>Tim Baumann
@@ -31,7 +31,7 @@
 		<dt>Style
 		<dd>
 			<select id=selectstyle>
-				<option value="Clean">Clean</option>
+				<option value="Moo">Moo</option>
 				<option value="Dread">Dread</option>
 			</select>
 	</dl>
@@ -45,7 +45,7 @@ window.addEvent('domready', function() {
 	// MooSweeper
 	var mooSweeper = new Moosweeper($('container'), {
 		caption: 'MooSweeper', // header
-		css: $('selectstyle').value || 'Clean', // stylesheet
+		css: $('selectstyle').value || 'Moo', // stylesheet
 		preset: 'easy', // or: medium, hard
 		where: 'top' // where to inject
 	});

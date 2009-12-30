@@ -12,15 +12,16 @@
 
 .moosweeper td { border: 1px solid #444; color: #444; }
 .moosweeper td div { cursor: default; font-size: 24px; font-weight: bold; height: 36px; line-height: 36px; text-align: center; width: 36px; }
-.moosweeper.running td:hover div.covered { background: #222; }
+.moosweeper.running td:hover div.covered { background: #333; }
 
 /* cells */
 .moosweeper .covered { background: #3a3a3a; }
 .moosweeper .discovered { background: rgb(22,12,0); }
-.moosweeper .marked, .moosweeper.won .mine { background: #888 !important; color: #555 !important; }
+.moosweeper .marked, .moosweeper.running td:hover div.covered.marked { background: #888; color: #555; }
 /* mines */
-.moosweeper .mine { color: #fff; font-size: 20px; }
-.moosweeper.lost .mine { background: #7c230e; }
+.moosweeper .mine { color: #fff; font-size: 64px; }
+.moosweeper.lost .mine { background: #8a2814; }
+.moosweeper.won .mine { background: #125e20; }
 
 /* minescount */
 .moosweeper .minescount0 { color: transparent; }
@@ -28,6 +29,7 @@
 .moosweeper .minescount2 { color: rgb(149,79,12); }
 .moosweeper .minescount3 { color: rgb(233,115,0); }
 .moosweeper .minescount4, .moosweeper td.minesCount5, .minesCount6, .minesCount7, .minesCount8 { color: rgb(139, 37, 0); }
+
 
 /* game options */
 .moosweeper .gameoptions th { background: #000; color: #eee; font: normal 15px Parole, monospace; line-height: 30px; padding: 0 10px; }

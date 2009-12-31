@@ -32,9 +32,9 @@ How to use
 * symbols - (*object*) - The labels of cells in a specific state.
   * covered - (*string*) The label of a covered cell. Defaults to *'?'*.
   * marked - (*string*) The label of a marked cell. Defaults to *'!'*.
-  * mine - (*string*) The label of a mine. Defaults to *'&middot;'* (entity of •).
+  * mine - (*string*) The label of a mine. Defaults to *'&amp;amp;middot;'* (entity of •).
 * gameOptions - (*object*) Options of the bar with displays and buttons.
-  * interface - (*string*) A string containing the names of game options in percent signs. Can contain html, too. Defaults to *'<div class="third first">%minesLeft%</div><div class="third second">%smiley%</div><div class="third last">%countdown%</div>'*, which makes the first game option left-aligned, the second centered and the third right-aligned.
+  * interface - (*string*) A string containing the names of game options in percent signs. Can contain html, too. Defaults to *'&amp;lt;div class="third first"&amp;gt;%minesLeft%&amp;lt;/div&amp;gt;&amp;lt;div class="third second"&amp;gt;%smiley%&amp;lt;/div&amp;gt;&amp;lt;div class="third last"&amp;gt;%countdown%&amp;lt;/div&amp;gt;'*, which makes the first game option left-aligned, the second centered and the third right-aligned.
   * where - (*string*) Can be *'top'* (the default) or *'bottom'*
   * smiley - (*object*) The labels of the smiley button in different states.
     * running - (*string*) Defaults to *':-)'*.
@@ -81,9 +81,9 @@ Displays:
 
 ### Presets
 
-* easy - *{ rows: 8, cols: 8, minesContingent: 0.16 }* => 64 cells, 10 mines
-* medium - *{ rows: 16, cols: 16, minesContingent: 0.16 }* => 256 cells, 41 mines
-* hard - *{ rows: 16, cols: 30, minesContingent: 0.21 }* => 480 cells, 101 mines
+* easy - *{ rows: 8, cols: 8, minesContingent: 0.16 }* (64 cells, 10 mines)
+* medium - *{ rows: 16, cols: 16, minesContingent: 0.16 }* (256 cells, 41 mines)
+* hard - *{ rows: 16, cols: 30, minesContingent: 0.21 }* (480 cells, 101 mines)
 
 ### Provided styles
 
@@ -105,7 +105,7 @@ Have a look at the DOM and the provided CSS files if you want to create your own
 	    caption: 'Minesweeper clone',
 	    css: 'Dread', // military style
 	    gameOptions: {
-	        interface: '<center>%newGame%</center>' // only a button to start a new game
+	        interface: '&amp;lt;center&amp;gt;%newGame%&amp;lt;/center&amp;gt;' // only a button to start a new game
 	    }
 	});
 

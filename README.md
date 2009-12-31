@@ -32,9 +32,9 @@ How to use
 * symbols - (*object*) - The labels of cells in a specific state.
   * covered - (*string*) The label of a covered cell. Defaults to *'?'*.
   * marked - (*string*) The label of a marked cell. Defaults to *'!'*.
-  * mine - (*string*) The label of a mine. Defaults to *'&amp;amp;middot;'* (entity of •).
+  * mine - (*string*) The label of a mine. Defaults to *'&middot;'* (entity of •).
 * gameOptions - (*object*) Options of the bar with displays and buttons.
-  * interface - (*string*) A string containing the names of game options in percent signs. Can contain html, too. Defaults to *'&amp;lt;div class="third first"&amp;gt;%minesLeft%&amp;lt;/div&amp;gt;&amp;lt;div class="third second"&amp;gt;%smiley%&amp;lt;/div&amp;gt;&amp;lt;div class="third last"&amp;gt;%countdown%&amp;lt;/div&amp;gt;'*, which makes the first game option left-aligned, the second centered and the third right-aligned.
+  * interface - (*string*) A string containing the names of game options in percent signs. Can contain html, too. Defaults to *'&lt;div class="third first"&gt;%minesLeft%&lt;/div&gt;&lt;div class="third second"&gt;%smiley%&lt;/div&gt;&lt;div class="third last"&gt;%countdown%&lt;/div&gt;'*, which makes the first game option left-aligned, the second centered and the third right-aligned.
   * where - (*string*) Can be *'top'* (the default) or *'bottom'*
   * smiley - (*object*) The labels of the smiley button in different states.
     * running - (*string*) Defaults to *':-)'*.
@@ -105,7 +105,7 @@ Have a look at the DOM and the provided CSS files if you want to create your own
 	    caption: 'Minesweeper clone',
 	    css: 'Dread', // military style
 	    gameOptions: {
-	        interface: '&amp;lt;center&amp;gt;%newGame%&amp;lt;/center&amp;gt;' // only a button to start a new game
+	        interface: '&lt;center&gt;%newGame%&lt;/center&gt;' // only a button to start a new game
 	    }
 	});
 

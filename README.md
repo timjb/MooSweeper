@@ -32,7 +32,7 @@ How to use
 * symbols - (*object*) - The labels of cells in a specific state.
   * covered - (*string*) The label of a covered cell. Defaults to *'?'*.
   * marked - (*string*) The label of a marked cell. Defaults to *'!'*.
-  * mine - (*string*) The label of a mine. Defaults to *'&middot;'* (entity of •).
+  * mine - (*string*) The label of a mine. Defaults to *'&amp;middot;'* (entity of •).
 * gameOptions - (*object*) Options of the bar with displays and buttons.
   * interface - (*string*) A string containing the names of game options in percent signs. Can contain html, too. Defaults to *'&lt;div class="third first"&gt;%minesLeft%&lt;/div&gt;&lt;div class="third second"&gt;%smiley%&lt;/div&gt;&lt;div class="third last"&gt;%countdown%&lt;/div&gt;'*, which makes the first game option left-aligned, the second centered and the third right-aligned.
   * where - (*string*) Can be *'top'* (the default) or *'bottom'*

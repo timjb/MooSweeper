@@ -98,15 +98,15 @@ Have a look at the DOM and the provided CSS files if you want to create your own
 
 	#JS
 	var mooSweeper = new MooSweeper(document.body, {
-		onLose: function() {
-			this.newGame(); // Automatically start new game
-		},
-		where: 'top', // inject the element at the top
-		caption: 'Minesweeper clone',
-		css: 'Dread', // military style
-		gameOptions: {
-			interface: '<center>%newGame%</center>' // only a button to start a new game
-		}
+	    onLose: function() {
+	        this.newGame(); // Automatically start new game
+	    },
+	    where: 'top', // inject the element at the top
+	    caption: 'Minesweeper clone',
+	    css: 'Dread', // military style
+	    gameOptions: {
+	        interface: '<center>%newGame%</center>' // only a button to start a new game
+	    }
 	});
 
 Have a look at the source code of the demo, too.

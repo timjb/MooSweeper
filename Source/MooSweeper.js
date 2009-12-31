@@ -6,6 +6,9 @@ license: WTFPL
 
 authors: Tim Baumann
 
+requires:
+  core/1.2.4: '*'
+
 provides: MooSweeper
 
 ...
@@ -96,16 +99,16 @@ var Moosweeper = new Class({
 		minimumTime: true,
 		
 		// view
-		caption: 'Moosweeper',
+		caption: 'MooSweeper',
 		where: 'bottom',
 		css: 'Moo',
 		symbols: {
 			covered: '?',
 			marked:  '!',
-			mine:    '•'
+			mine:    '&middot;'
 		},
 		gameOptions: {
-			where: 'bottom',
+			where: 'top',
 			interface: '<div class="third first">%minesLeft%</div>'+
 			           '<div class="third second">%smiley%</div>'+
 			           '<div class="third last">%countdown%</div>',
@@ -117,8 +120,8 @@ var Moosweeper = new Class({
 			},
 			status: {
 				running: 'Running',
-				lose:    'Lost!',
-				win:     'Won!'
+				lost:    'Lost!',
+				won:     'Won!'
 			},
 			newGame: 'New Game'
 		}
@@ -277,7 +280,7 @@ var Moosweeper = new Class({
 			var increaseTimer = function() {
 				this.time++;
 				this.that.fireEvent('secondinternal');
-				if(this.that.options.countdown > 0 && this.time == this.that.options.countdown) {
+				if(this.that.options.countdown > 0 && this.time >= this.that.options.countdown) {
 					this.that.fireEvent('finishinternal');
 					this.that.fireEvent('loseinternal', 'time');
 				}
@@ -357,7 +360,7 @@ var Moosweeper = new Class({
 				item.each(function(item) {
 					item.set({
 						'class': 'covered',
-						text: this.that.options.symbols.covered
+						html: this.that.options.symbols.covered
 					});
 				}, this);
 			}, this);
@@ -468,7 +471,7 @@ var Moosweeper = new Class({
 					var td = new Element('td');
 					var div = new Element('div', {
 						'class': 'covered',
-						text: this.that.options.symbols.covered
+						html: this.that.options.symbols.covered
 					});
 					div.store('x', x);
 					div.store('y', y);
@@ -491,11 +494,11 @@ var Moosweeper = new Class({
 				// toggle function
 				if(div.hasClass('marked')) {
 					div.removeClass('marked');
-					div.set('text', this.that.options.symbols.covered);
+					div.set('html', this.that.options.symbols.covered);
 					this.marked--;
 				} else {
 					div.addClass('marked');
-					div.set('text', this.that.options.symbols.marked);
+					div.set('html', this.that.options.symbols.marked);
 					this.marked++;
 				}
 				this.that.fireEvent('markchangeinternal');
@@ -529,7 +532,7 @@ var Moosweeper = new Class({
 				
 				if(minesCount == -1) {
 					// wham!
-					div.set('text', this.that.options.symbols.mine);
+					div.set('html', this.that.options.symbols.mine);
 					div.addClass('mine');
 					this.that.fireNow();
 				} else {
@@ -661,8 +664,8 @@ var Moosweeper = new Class({
 				};
 				
 				this.that.addEvents({
-					wininternal: setStatus.pass(this.that.options.gameOptions.status.win, this),
-					loseinternal: setStatus.pass(this.that.options.gameOptions.status.lose, this),
+					wininternal: setStatus.pass(this.that.options.gameOptions.status.won, this),
+					loseinternal: setStatus.pass(this.that.options.gameOptions.status.lost, this),
 					newgameinternal: setStatus.pass(this.that.options.gameOptions.status.running, this)
 				});
 			},

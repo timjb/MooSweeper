@@ -277,6 +277,7 @@ var Moosweeper = new Class({
 			this.time = 0;
 			this.that.fireEvent('secondinternal');
 			
+			$clear(this.interval);
 			var increaseTimer = function() {
 				this.time++;
 				this.that.fireEvent('secondinternal');
